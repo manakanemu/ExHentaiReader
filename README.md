@@ -35,7 +35,7 @@ if (document.getElementById('readerJs')) {
         }
     }
 } else {
-    window.isLoad = false
+    window.isLoad = false;
     var jqueryJs = document.createElement('script');
     jqueryJs.setAttribute('src', 'https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js');
     jqueryJs.setAttribute('onload', 'loadReader()');
