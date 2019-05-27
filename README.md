@@ -43,3 +43,4 @@ if (document.getElementById('readerJs')) {
     document.body.appendChild(jqueryJs);
 }
 ```
+## 3、使用方法
