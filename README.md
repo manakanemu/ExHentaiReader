@@ -6,8 +6,7 @@
 ```
 javascript:
 function loadReader() {
-    var readerJs = $('<script src="https://raw.githubusercontent.com/skjgsk/ExHentaiReader/master/EXShowImg.js" id="readerJs" value="10"></script>');
-    $('body').append(readerJs);
+    $('body').append($('<script src="https://skjgsk.github.io/ExHentaiReader/EXShowImg.js" id="readerJs" value="10"></script>'));
 }
 if (document.getElementById('readerJs')) {
     if(window.isLoad){
