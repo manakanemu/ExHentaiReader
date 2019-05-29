@@ -1,7 +1,5 @@
 # ExHentaiReader
-## 0、前言
-本人是一名初学js的学生，还在学习中。
-本项目作为练习产物，如有代码不规范，命名不规范问题等一系列问题，请多包涵。
+
 ## 1、使用效果
 **使用前：**  
 <img src='https://github.com/skjgsk/ExHentaiReader/blob/master/describe/before.jpg' width='220px' height='480px'>  
