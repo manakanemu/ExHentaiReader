@@ -12,11 +12,11 @@
 ```
 javascript:
 function loadReader() {
-    $('body').append($('<script src="https://skjgsk.github.io/ExHentaiReader/EXShowImg.js" id="readerJs" value="10"></script>'));
+    $('body').append($('<script src="https://manakanemu.github.io/ExHentaiReader/EXShowImg.js" id="readerJs" value="10"></script>'));
 }
 if (document.getElementById('readerJs')) {
     if(window.isLoad){
-        $('body').append($('<script src="https://skjgsk.github.io/ExHentaiReader/EXReLoad.js"></script>'));
+        $('body').append($('<script src="https://manakanemu.github.io/ExHentaiReader/EXReLoad.js"></script>'));
     }
 } else {
     window.isLoad = false;
