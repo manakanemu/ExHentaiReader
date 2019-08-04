@@ -1,6 +1,4 @@
 window.step = document.getElementById('exReader').getAttribute('step')
-console.log(step)
-
 
 //图片加载状态函数
 function imload() {
@@ -74,6 +72,8 @@ if (!window.readerInit) {
             }
         })
         window.imgSize = window.pageUrls.length
+        window.step = Math.min(window.step,window.imgSize)
+        console.log(window.step)
         container.empty()
         window.readerInit = true
         container.attr('style', 'max-width:5000px;margin:0px;padding:0px;width:100%;display: flex;flex-flow: column nowrap;justify-content: flex-start;align-items: center;')
