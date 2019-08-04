@@ -13,9 +13,9 @@
 手机浏览器随便打开一个网页，添加书签，然后用**下面这段代码**替换掉书签的地址
 
 ```
-javascript:var s = document.createElement('script'); s.setAttribute('step',10); s.setAttribute('src','https://manakanemu.github.io/ExHentaiReader/Reader.js?'+parseInt(Date.parse(new Date())/1000)); s.setAttribute('id','exReader'); document.body.appendChild(s);
+javascript:var s = document.createElement('script'); s.setAttribute('step',20); s.setAttribute('src','https://manakanemu.github.io/ExHentaiReader/Reader.js?'+parseInt(Date.parse(new Date())/1000)); s.setAttribute('id','exReader'); document.body.appendChild(s);
 ```
-修改`s.setAttribute('step',10)` 中的数字，可以控制先加载图片的数量，一般用户可以设为10-15，网速快的用户可以设的更高。
+修改`s.setAttribute('step',20)` 中的数字，可以控制先加载图片的数量，一般用户可以设为15-25，网速快的用户可以设的更高。
   
 ## 3、使用方法
 * 打开本子页面，点击书签即可运行。  
