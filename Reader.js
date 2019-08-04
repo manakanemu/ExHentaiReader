@@ -1,4 +1,3 @@
-window.step = document.getElementById('exReader').getAttribute('step')
 
 //图片加载状态函数
 function imload() {
@@ -43,9 +42,12 @@ function getImgUrl(i, start, end,Preloading) {
             window.mycount++
             if(Preloading){
                 window.myinfo.css('color', '#FFB11B')
-                window.myinfo.text('抽取图片地址: ' + window.mycount*100/ end+'%')
+                window.myinfo.text('抽取图片地址: ' + Math.ceil(window.mycount*100/ end)+'%')
             }
             if (window.mycount >= end) {
+                container.empty()
+                container.attr('style', 'max-width:5000px;margin:0px;padding:0px;width:100%;display: flex;flex-flow: column nowrap;justify-content: flex-start;align-items: center;')
+
                 window.isLoad = true
                 container.append(window.myinfo)
                 for (var j = start; j < end; j++) {
@@ -72,11 +74,10 @@ if (!window.readerInit) {
             }
         })
         window.imgSize = window.pageUrls.length
+        window.step = document.getElementById('exReader').getAttribute('step')
         window.step = Math.min(window.step,window.imgSize)
         console.log(window.step)
-        container.empty()
         window.readerInit = true
-        container.attr('style', 'max-width:5000px;margin:0px;padding:0px;width:100%;display: flex;flex-flow: column nowrap;justify-content: flex-start;align-items: center;')
         window.myinfo = $('<span style="position: fixed;display: block;font-size: 50px;z-index: 99;top: 0px;left: 50%;transform: translateX(-50%)"></span>')
         container.prepend(window.myinfo)
         window.myinfo.css('color', '#d71345')
@@ -92,16 +93,16 @@ if (!window.readerInit) {
 } else {
     var container = $('#gdt')
     container.empty()
-    container.attr('style', 'max-width:5000px;margin:0px;padding:0px;width:100%;display: flex;flex-flow: column nowrap;justify-content: flex-start;align-items: center;')
     window.myinfo = $('<span style="position: fixed;display: block;font-size: 50px;z-index: 99;top: 0px;left: 50%;transform: translateX(-50%)"></span>')
     container.prepend(window.myinfo)
     window.myinfo.css('color', '#d71345')
     window.loadcount = 0
+    window.mycount = 0
     for (var i = 0; i < window.step; i++) {
         getImgUrl(i, 0, window.step,true)
     }
 }
 
 
-// javascript:var s = document.createElement('script'); s.setAttribute('step',10); s.setAttribute('src','https://manakanemu.oss-cn-beijing.aliyuncs.com/show2.js?'+parseInt(Date.parse(new Date())/1000)); s.setAttribute('id','exReader'); document.body.appendChild(s);
+// javascript:var s = document.createElement('script'); s.setAttribute('step',10); s.setAttribute('src','https://manakanemu.oss-cn-beijing.aliyuncs.com/oss%3A//manakanemu/vscode/Reader.js?'+parseInt(Date.parse(new Date())/1000)); s.setAttribute('id','exReader'); document.body.appendChild(s);
 
