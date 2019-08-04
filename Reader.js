@@ -6,7 +6,7 @@ function imload() {
     window.myinfo.text('已加载图片 ' + window.loadcount.toString() + '/' + window.imgSize.toString())
     if (window.loadcount == window.step) {
         for (var i = window.step; i < window.imgSize; i++) {
-            getImgUrl(i, window.step, window.imgSize,false)
+            getImgUrl(i, window.step, window.imgSize, false)
         }
     }
     if (window.loadcount >= window.imgSize) {
@@ -30,7 +30,7 @@ function resetImgUrl(imgObj, imgSrc, maxErrorNum) {
         imgObj.src = "<%=basePath%>images/noImg.png";
     }
 }
-function getImgUrl(i, start, end,Preloading) {
+function getImgUrl(i, start, end, Preloading) {
     var container = $('#gdt')
     $.ajax({
         url: window.pageUrls[i],
@@ -40,12 +40,15 @@ function getImgUrl(i, start, end,Preloading) {
             imgurl = page.find('#img').attr('src');
             window.imgUrls[i] = imgurl
             window.mycount++
-            if(Preloading){
+            if (Preloading) {
                 window.myinfo.css('color', '#FFB11B')
-                window.myinfo.text('抽取图片地址: ' + Math.ceil(window.mycount*100/ end)+'%')
+                window.myinfo.text('抽取图片地址: ' + Math.ceil(window.mycount * 100 / end) + '%')
             }
             if (window.mycount >= end) {
-                container.empty()
+                if (Preloading) {
+                    container.empty()
+
+                }
                 container.attr('style', 'max-width:5000px;margin:0px;padding:0px;width:100%;display: flex;flex-flow: column nowrap;justify-content: flex-start;align-items: center;')
 
                 window.isLoad = true
@@ -75,7 +78,7 @@ if (!window.readerInit) {
         })
         window.imgSize = window.pageUrls.length
         window.step = document.getElementById('exReader').getAttribute('step')
-        window.step = Math.min(window.step,window.imgSize)
+        window.step = Math.min(window.step, window.imgSize)
         console.log(window.step)
         window.readerInit = true
         window.myinfo = $('<span style="position: fixed;display: block;font-size: 50px;z-index: 99;top: 0px;left: 50%;transform: translateX(-50%)"></span>')
@@ -83,7 +86,7 @@ if (!window.readerInit) {
         window.myinfo.css('color', '#d71345')
         window.loadcount = 0
         for (var i = 0; i < window.step; i++) {
-            getImgUrl(i, 0, window.step,true)
+            getImgUrl(i, 0, window.step, true)
         }
     }
     var jq = document.createElement('script')
@@ -99,7 +102,7 @@ if (!window.readerInit) {
     window.loadcount = 0
     window.mycount = 0
     for (var i = 0; i < window.step; i++) {
-        getImgUrl(i, 0, window.step,true)
+        getImgUrl(i, 0, window.step, true)
     }
 }
 
