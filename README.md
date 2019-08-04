@@ -14,12 +14,12 @@
 ```
 javascript:var s = document.createElement('script'); s.setAttribute('step',10); s.setAttribute('src','https://manakanemu.github.io/ExHentaiReader/Reader.js?'+parseInt(Date.parse(new Date())/1000)); s.setAttribute('id','exReader'); document.body.appendChild(s);
 ```
-修改`s.setAttribute('step',10)` 中的数字，可以控制先加载图片的数量，建议设为10-20，网速快的用户可以酌情增加。
+修改`s.setAttribute('step',10)` 中的数字，可以控制先加载图片的数量，一般用户可以设为10-15，网速快的用户可以设的更高。
   
 ## 3、使用方法
 * 打开本子页面，点击书签即可运行。  
-* 运行脚本后，页面上方会浮动显示运行进度，分为**获取图片地址**、**加载图片**、**加载完成**三种状态，图片加载完成后浮动文字会变成绿色的**加载完成**字样，三秒后自动消失。  
-* 如果长时间未加载完成，可以重新运行本脚本，本脚本会重新加载图片。（目前利用浏览器缓存重新加载，未来会设计更合理的加载逻辑）  
+* 运行脚本后，页面上方会浮动显示运行进度，分为**抽取地址**、**加载图片**、**加载完成**三种状态，图片加载完成后浮动文字会变成绿色的**加载完成**字样，三秒后自动消失。  
+* 如果长时间未加载完成，可以重新点击运行本脚本，本脚本会重新加载图片。  
 
 
 
