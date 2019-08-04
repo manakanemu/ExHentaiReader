@@ -1,4 +1,6 @@
 # ExHentaiReader
+## 0、更新  
+更新了阅读器注入的逻辑以及显示图片的策略，先快速加载部分图片，之后再加载全部图片。  
 
 ## 1、使用效果
 **使用前：**  
@@ -10,22 +12,10 @@
 手机浏览器随便打开一个网页，添加书签，然后用**下面这段代码**替换掉书签的地址
 
 ```
-javascript:
-function loadReader() {
-    $('body').append($('<script src="https://manakanemu.github.io/ExHentaiReader/EXShowImg.js" id="readerJs" value="10"></script>'));
-}
-if (document.getElementById('readerJs')) {
-    if(window.isLoad){
-        $('body').append($('<script src="https://manakanemu.github.io/ExHentaiReader/EXReLoad.js"></script>'));
-    }
-} else {
-    window.isLoad = false;
-    var jqueryJs = document.createElement('script');
-    jqueryJs.setAttribute('src', 'https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js');
-    jqueryJs.setAttribute('onload', 'loadReader()');
-    document.body.appendChild(jqueryJs);
-}
+javascript:var s = document.createElement('script'); s.setAttribute('step',10); s.setAttribute('src','https://manakanemu.github.io/ExHentaiReader/Reader.js?'+parseInt(Date.parse(new Date())/1000)); s.setAttribute('id','exReader'); document.body.appendChild(s);
 ```
+修改`s.setAttribute('step',10)` 中的数字，可以控制先加载图片的数量，建议设为10-20，网速快的用户可以酌情增加。
+  
 ## 3、使用方法
 * 打开本子页面，点击书签即可运行。  
 * 运行脚本后，页面上方会浮动显示运行进度，分为**获取图片地址**、**加载图片**、**加载完成**三种状态，图片加载完成后浮动文字会变成绿色的**加载完成**字样，三秒后自动消失。  
