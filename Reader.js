@@ -100,17 +100,3 @@ if (!window.initReader) {
         hideElement(document.getElementById('barBox'))
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-// javascript: ( function () { var a = document.createElement('script'); a.setAttribute('step',20); a.setAttribute('src','https://manakanemu.oss-cn-beijing.aliyuncs.com/vscode/newReader.js?'+parseInt(Date.parse(new Date())/1000)); document.body.append(a);}());
