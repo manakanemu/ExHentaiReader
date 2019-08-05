@@ -13,7 +13,7 @@ function imgLoadSuccess(element) {
     window.loaded++
     var order = this.getAttribute('order')
     barComplete(order)
-    if (window.loadImg >= window.pageUrls.length) {
+    if (window.loaded >= window.pageUrls.length) {
         hideElement(document.getElementById('barBox'))
     }
 }
