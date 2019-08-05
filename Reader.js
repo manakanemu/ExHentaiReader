@@ -1,111 +1,109 @@
-
-//图片加载状态函数
-function imload() {
-    window.loadcount++
-    window.myinfo.css('color', '#C1328E')
-    window.myinfo.text('已加载图片 ' + window.loadcount.toString() + '/' + window.imgSize.toString())
-    if (window.loadcount == window.step) {
-        for (var i = window.step; i < window.imgSize; i++) {
-            getImgUrl(i, window.step, window.imgSize, false)
-        }
-    }
-    if (window.loadcount >= window.imgSize) {
-        window.myinfo.css('color', '#84FF98')
-        window.myinfo.text('全部图片加载完成')
-        setTimeout(function () {
-            window.myinfo.remove()
-        }, 3000);
-    }
-}
-function resetImgUrl(imgObj, imgSrc, maxErrorNum) {
-    if (maxErrorNum > 0) {
-        imgObj.onerror = function () {
-            reSetImgUrl(imgObj, imgSrc, maxErrorNum - 1);
-        };
-        setTimeout(function () {
-            imgObj.src = imgSrc;
-        }, 500);
-    } else {
-        imgObj.onerror = null;
-        imgObj.src = "<%=basePath%>images/noImg.png";
-    }
-}
-function getImgUrl(i, start, end, Preloading) {
-    var container = $('#gdt')
-    $.ajax({
-        url: window.pageUrls[i],
-        dataType: 'html',
-        success: function (element) {
-            var page = $(element);
-            imgurl = page.find('#img').attr('src');
-            window.imgUrls[i] = imgurl
-            window.mycount++
-            if (Preloading) {
-                window.myinfo.css('color', '#FFB11B')
-                window.myinfo.text('抽取图片地址: ' + Math.ceil(window.mycount * 100 / end) + '%')
-            }
-            if (window.mycount >= end) {
-                if (Preloading) {
-                    container.empty()
-
-                }
-                container.attr('style', 'max-width:5000px;margin:0px;padding:0px;width:100%;display: flex;flex-flow: column nowrap;justify-content: flex-start;align-items: center;')
-
-                window.isLoad = true
-                container.append(window.myinfo)
-                for (var j = start; j < end; j++) {
-                    var img = $('<img class="exImage" style="width:100%;" src="' + window.imgUrls[j] + '" onload="imload()" onerror="resetImgUrl(this,this.src,3)">')
-                    container.append(img)
-                    container.append($('<hr style="width:100%;height:10px;background-color:yellow;margin:0px;">'));
-                }
-            }
-        }
-    })
-}
-
-if (!window.readerInit) {
-    function initReader() {
-        window.pageUrls = new Array()
-        window.imgUrls = new Array()
-        window.mycount = 0
-        var container = $('#gdt')
-        $('#gdt>div').each(function () {
-            var div = $(this)
-            if (div.attr('class') == 'gdtm' || div.attr('class') == 'gdtl') {
-                pageurl = div.find('a').attr('href')
-                window.pageUrls.push(pageurl)
-            }
+function hideElement(element) {
+    element.style.opacity -= 0.05
+    if (element.style.opacity > 0) {
+        requestAnimationFrame(function () {
+            hideElement(element)
         })
-        window.imgSize = window.pageUrls.length
-        window.step = document.getElementById('exReader').getAttribute('step')
-        window.step = Math.min(window.step, window.imgSize)
-        console.log(window.step)
-        window.readerInit = true
-        window.myinfo = $('<span style="position: fixed;display: block;font-size: 50px;z-index: 99;top: 0px;left: 50%;transform: translateX(-50%)"></span>')
-        container.prepend(window.myinfo)
-        window.myinfo.css('color', '#d71345')
-        window.loadcount = 0
-        for (var i = 0; i < window.step; i++) {
-            getImgUrl(i, 0, window.step, true)
+    }
+}
+function barComplete(i) {
+    hideElement(window.progressBars[i])
+}
+function imgLoadSuccess(element) {
+    window.loaded++
+    var order = this.getAttribute('order')
+    barComplete(order)
+    if (window.loadImg >= window.pageUrls.length) {
+        hideElement(document.getElementById('barbox'))
+    }
+}
+function imgLoadFailed() {
+    this.setAttribute('src', this.src)
+}
+function loadImg(i) {
+    var xhr = new XMLHttpRequest()
+    xhr.open('GET', window.pageUrls[i], true)
+    xhr.onload = function () {
+        if (this.status === 200) {
+            var imgUrl = this.responseText.match(/<img id=\"img\" src=\"(.+?)\"/i)[1]
+            var nl = this.responseText.match(/onclick=\"return nl\(\'(.+?)\'\)\"/i)[1]
+            window.imgUrls[i] = imgUrls
+            window.nls[i] = nl
+            var img = document.getElementById('img' + i)
+            var h = document.createElement('hr')
+            h.setAttribute('style', 'width:100%;height:8px;background-color:yellow;margin:0px;')
+            img.parentElement.insertBefore(h, img)
+            img.setAttribute('src', imgUrl)
         }
     }
-    var jq = document.createElement('script')
-    jq.setAttribute('src', 'https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js')
-    jq.setAttribute('onload', 'initReader()')
-    document.body.appendChild(jq)
+    xhr.send()
+}
+
+if (!window.initReader) {
+    var container = document.getElementById('gdt')
+    var pageElements = container.getElementsByTagName('a')
+    window.pageUrls = new Array()
+    window.imgUrls = new Array()
+    window.imgElements = new Array()
+    window.progressBars = new Array()
+    window.nls = new Array()
+    window.loaded = 0
+    var readerContainer = document.createElement('div')
+    readerContainer.setAttribute('id', 'readerContainer')
+    container.parentElement.insertBefore(readerContainer, container)
+    var barBox = document.createElement('div')
+    barBox.setAttribute('id', 'barBox')
+    barBox.setAttribute('style', 'opacity:1;background-color: greenyellow;z-index: 99; position: fixed; border-radius: 5px; border: none; width: 100%; height: 10px; left: 0px; top: 0px; display: flex; flex-flow: row nowrap; justify-content: start; align-items: center;')
+    readerContainer.appendChild(barBox)
+
+    for (var i = 0; i < pageElements.length; i++) {
+        window.pageUrls.push(pageElements[i].href)
+        var img = document.createElement('img')
+        img.setAttribute('id', 'img' + i)
+        img.setAttribute('name', 'anchor' + i)
+        img.setAttribute('order', i)
+        img.setAttribute('style', 'width:100%')
+        img.onload = imgLoadSuccess
+        img.onerror = imgLoadFailed
+        readerContainer.append(img)
+        window.imgElements[i] = img
+        var bar = document.createElement('a')
+        bar.setAttribute('href', '#anchor' + i)
+        bar.setAttribute('style', 'opacity:1;z-index: 100;display: flex; flex-grow: 1; background-color: red;height: 100%;')
+        barBox.appendChild(bar)
+        window.progressBars[i] = bar
+    }
+    container.parentElement.removeChild(container)
+    window.initReader = true
+    for (var i = 0; i < window.pageUrls.length; i++) {
+        loadImg(i)
+    }
 } else {
-    var container = $('#gdt')
-    container.empty()
-    window.myinfo = $('<span style="position: fixed;display: block;font-size: 50px;z-index: 99;top: 0px;left: 50%;transform: translateX(-50%)"></span>')
-    container.prepend(window.myinfo)
-    window.myinfo.css('color', '#d71345')
-    window.loadcount = 0
-    window.mycount = 0
-    for (var i = 0; i < window.step; i++) {
-        getImgUrl(i, 0, window.step, true)
+    console.log('222222222')
+    for (var i = 0; i < window.pageUrls.length; i++) {
+        if (!window.imgUrls[i]) {
+            console.log('not url')
+            loadImg(i)
+        } else {
+            if (!window.imgElements[i].complete) {
+                console.log('cannot load')
+                window.pageUrls[i] += '?nl='+window.nls[i]
+                loadImg(i)
+            }
+        }
     }
 }
 
 
-// javascript:var s = document.createElement('script'); s.setAttribute('step',10); s.setAttribute('src','https://manakanemu.oss-cn-beijing.aliyuncs.com/oss%3A//manakanemu/vscode/Reader.js?'+parseInt(Date.parse(new Date())/1000)); s.setAttribute('id','exReader'); document.body.appendChild(s);
 
+
+
+
+
+
+
+
+
+
+
+// javascript: ( function () { var a = document.createElement('script'); a.setAttribute('step',20); a.setAttribute('src','https://manakanemu.oss-cn-beijing.aliyuncs.com/vscode/newReader.js?'+parseInt(Date.parse(new Date())/1000)); document.body.append(a);}());
