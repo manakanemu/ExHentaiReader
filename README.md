@@ -1,8 +1,8 @@
 # ExHentaiReader
 ## 0、更新  
-更新了阅读器注入的逻辑以及显示图片的策略，先快速加载部分图片，之后再加载全部图片。  
-请使用**安装方法**中新的标签代码，更新以前保存的标签。
-
+1、放弃了jquery，全部使用js实现，少加载jq库，运行效率更高  
+2、等待的过程更加直观，采用顶部热力条的形式显示加载成功与未成功的图片  
+3、添加了重新加载和换源功能，再次执行标签即可对未加载的图片进行换源  
 ## 1、使用效果
 **使用前：**  
 <img src='https://github.com/skjgsk/ExHentaiReader/blob/master/describe/before.jpg' width='220px' height='480px'>  
@@ -15,12 +15,11 @@
 ```
 javascript:var s = document.createElement('script'); s.setAttribute('step',20); s.setAttribute('src','https://manakanemu.github.io/ExHentaiReader/Reader.js?'+parseInt(Date.parse(new Date())/1000)); s.setAttribute('id','exReader'); document.body.appendChild(s);
 ```
-修改`s.setAttribute('step',20)` 中的数字，可以控制先加载图片的数量，一般用户可以设为15-25，网速快的用户可以设的更高。
   
 ## 3、使用方法
 * 打开本子页面，点击书签即可运行。  
-* 运行脚本后，页面上方会浮动显示运行进度，分为**抽取地址**、**加载图片**、**加载完成**三种状态，图片加载完成后浮动文字会变成绿色的**加载完成**字样，三秒后自动消失。  
-* 如果长时间未加载完成，可以重新点击运行本脚本，本脚本会重新加载图片。  
+* 运行脚本后，页面上方会浮动显示加载热力条，绿色部分为加载完成部分，红色部分为加载未完成部分。  
+* 如果长时间未加载完成，可以重新点击运行本脚本，脚本会自动更换图片源。
 
 
 
