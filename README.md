@@ -1,8 +1,8 @@
 # ExHentaiReader
 ## 0、更新  
-1、放弃了jquery，全部使用js实现，少加载jq库，运行效率更高  
-2、等待的过程更加直观，采用顶部热力条的形式显示加载成功与未成功的图片  
-3、添加了重新加载和换源功能，再次执行标签即可对未加载的图片进行换源  
+1、放弃了jquery，全部使用js实现，减少了加载库，提升运行效率  
+2、等待标识更加直观，改用顶部热力条的形式显示加载成功与未成功的图片  
+3、添加了重新加载和图片换源功能，再次执行标签即可对未加载的图片进行换源  
 ## 1、使用效果
 **使用前：**  
 <img src='https://github.com/skjgsk/ExHentaiReader/blob/master/describe/before.jpg' width='220px' height='480px'>  
