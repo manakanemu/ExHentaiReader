@@ -20,7 +20,7 @@ function imgLoadSuccess(element) {
 function imgLoadFailed() {
     this.setAttribute('src', this.src)
 }
-function loadImg(i) {
+function loadImg(i, first) {
     var xhr = new XMLHttpRequest()
     xhr.open('GET', window.pageUrls[i], true)
     xhr.onload = function () {
@@ -30,9 +30,11 @@ function loadImg(i) {
             window.imgUrls[i] = imgUrls
             window.nls[i] = nl
             var img = document.getElementById('img' + i)
-            var h = document.createElement('hr')
-            h.setAttribute('style', 'width:100%;height:8px;background-color:yellow;margin:0px;')
-            img.parentElement.insertBefore(h, img)
+            if (first) {
+                var h = document.createElement('hr')
+                h.setAttribute('style', 'width:100%;height:8px;background-color:yellow;margin:0px;')
+                img.parentElement.insertBefore(h, img)
+            }
             img.setAttribute('src', imgUrl)
         }
     }
@@ -53,7 +55,7 @@ if (!window.initReader) {
     container.parentElement.insertBefore(readerContainer, container)
     var barBox = document.createElement('div')
     barBox.setAttribute('id', 'barBox')
-    barBox.setAttribute('style', 'opacity:1;background-color: greenyellow;z-index: 99; position: fixed; border-radius: 5px; border: none; width: 100%; height: 10px; left: 0px; top: 0px; display: flex; flex-flow: row nowrap; justify-content: start; align-items: center;')
+    barBox.setAttribute('style', 'opacity:1;background-color: #7bed9f;z-index: 99; position: fixed; border-radius: 5px; border: none; width: 100%; height: 10px; left: 0px; top: 0px; display: flex; flex-flow: row nowrap; justify-content: start; align-items: center;')
     readerContainer.appendChild(barBox)
 
     for (var i = 0; i < pageElements.length; i++) {
@@ -69,31 +71,28 @@ if (!window.initReader) {
         window.imgElements[i] = img
         var bar = document.createElement('a')
         bar.setAttribute('href', '#anchor' + i)
-        bar.setAttribute('style', 'opacity:1;z-index: 100;display: flex; flex-grow: 1; background-color: red;height: 100%;')
+        bar.setAttribute('style', 'opacity:1;z-index: 100;display: flex; flex-grow: 1; background-color: #ff6b81;height: 100%;')
         barBox.appendChild(bar)
         window.progressBars[i] = bar
     }
     container.parentElement.removeChild(container)
     window.initReader = true
     for (var i = 0; i < window.pageUrls.length; i++) {
-        loadImg(i)
+        loadImg(i, true)
     }
 } else {
     window.loaded = 0
-    console.log('222222222')
     for (var i = 0; i < window.pageUrls.length; i++) {
-        if (!window.imgUrls[i]) {
-            console.log('not url')
-            loadImg(i)
+        if (!window.imgElements[i].complete) {
+            window.progressBars[i].style.backgroundColor = '#ffa502'
+            if (!window.imgUrls[i]) {
+                loadImg(i, false)
+            } else {
+                window.pageUrls[i] += '?nl=' + window.nls[i]
+                loadImg(i, false)
+            }
         } else {
-            if (!window.imgElements[i].complete) {
-                console.log('cannot load')
-                window.pageUrls[i] += '?nl='+window.nls[i]
-                loadImg(i)
-            }
-            else{
-                window.loaded ++
-            }
+            window.loaded++
         }
     }
     if (window.loaded >= window.pageUrls.length) {
