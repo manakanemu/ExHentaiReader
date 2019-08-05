@@ -96,6 +96,9 @@ if (!window.initReader) {
             }
         }
     }
+    if (window.loaded >= window.pageUrls.length) {
+        hideElement(document.getElementById('barBox'))
+    }
 }
 
 
