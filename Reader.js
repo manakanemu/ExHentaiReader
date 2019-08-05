@@ -79,6 +79,7 @@ if (!window.initReader) {
         loadImg(i)
     }
 } else {
+    window.loaded = 0
     console.log('222222222')
     for (var i = 0; i < window.pageUrls.length; i++) {
         if (!window.imgUrls[i]) {
@@ -89,6 +90,9 @@ if (!window.initReader) {
                 console.log('cannot load')
                 window.pageUrls[i] += '?nl='+window.nls[i]
                 loadImg(i)
+            }
+            else{
+                window.loaded ++
             }
         }
     }
