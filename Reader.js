@@ -42,6 +42,8 @@ function loadImg(i, first) {
 }
 
 if (!window.initReader) {
+    document.body.scrollTop = 0
+    document.documentElement.scrollTop = 0
     var container = document.getElementById('gdt')
     var pageElements = container.getElementsByTagName('a')
     window.pageUrls = new Array()
