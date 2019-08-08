@@ -1,3 +1,4 @@
+// pc
 function hideElement(element) {
     element.style.opacity -= 0.05
     if (element.style.opacity > 0) {
