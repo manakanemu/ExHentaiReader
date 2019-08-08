@@ -43,6 +43,8 @@ function loadImg(i, first) {
 }
 
 if (!window.initReader) {
+    var swidth = window.screen.width
+    var sheight = window.screen.height
     document.body.scrollTop = 0
     document.documentElement.scrollTop = 0
     var container = document.getElementById('gdt')
