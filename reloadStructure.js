@@ -55,6 +55,7 @@ function runReader() {
     document.body.scrollTop = 0
     document.documentElement.scrollTop = 0
     window.myframe = document.getElementById('myframe').contentWindow
+    window.myframe.document.getElementById('f_search').blur()
     var container = window.myframe.document.getElementById('gdt')
     if (!container) {
         return
