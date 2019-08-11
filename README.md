@@ -30,7 +30,7 @@ javascript:var s = document.createElement('script'); s.setAttribute('step',20); 
 
 ## 框架版(测试版)  
 ### 1、使用效果  
-一键注入脚本，重构网站，无需多次使用，目前正在优化逻辑，以及手机端Gui的适配
+一键注入脚本，重构网站，无需多次使用，目前正在优化逻辑，以及手机端Gui的适配  
 <img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/test.GIF' width='220px' height='480px'>     
 
 ### 2、安装方法   
