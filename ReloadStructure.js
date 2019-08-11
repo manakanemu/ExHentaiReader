@@ -49,13 +49,10 @@ function loadImg(i, first) {
     xhr.send()
 }
 function runReader() {
-
-
     // if (!window.initReader) {
     document.body.scrollTop = 0
     document.documentElement.scrollTop = 0
     window.myframe = document.getElementById('myframe').contentWindow
-    window.myframe.document.getElementById('f_search').blur()
     var container = window.myframe.document.getElementById('gdt')
     if (!container) {
         return
@@ -122,6 +119,11 @@ function frameClicked(event) {
     alert()
 
 }
+function exFrameLoaded() {  
+    console.log('onload')
+    window.myframe.document.getElementById('f_search').blur()
+    runReader()
+}
 if (!inExhentai()) {
     if (confirm('需要先打开exhentai主页再运行脚本，是否打开exhentai主页？')) {
         document.location.href = "https://exhentai.org/"
@@ -134,7 +136,7 @@ if (!inExhentai()) {
     var exFrame = document.createElement('iframe')
     exFrame.setAttribute('id', 'myframe')
     exFrame.setAttribute('frameborder', '0')
-    exFrame.setAttribute('onload', 'runReader()')
+    exFrame.setAttribute('onload', 'exFrameLoaded()')
     exFrame.setAttribute('src', 'https://exhentai.org/')
     exFrame.setAttribute('onclick', 'frameClicked()')
     document.body.appendChild(exFrame)
