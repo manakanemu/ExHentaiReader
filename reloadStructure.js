@@ -10,4 +10,5 @@ if(document.location.href != "https://exhentai.org/"){
     var f = document.createElement('iframe')
     f.setAttribute('frameborder','0')
     f.setAttribute('src','https://exhentai.org/')
+    document.body.appendChild(f)
 }
