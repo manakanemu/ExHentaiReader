@@ -35,5 +35,12 @@ javascript:var s = document.createElement('script'); s.setAttribute('step',20); 
 手机浏览器随便打开一个网页，添加书签，然后用**下面这段代码**替换掉书签的地址
 
 ```
-javascript:var s = document.createElement('script');s.setAttribute('src','https://manakanemu.github.io/ExHentaiReader/Reader.js?'+parseInt(Date.parse(new Date())/1000)); s.setAttribute('id','exReader'); document.body.appendChild(s);
-```
+javascript:var s = document.createElement('script');s.setAttribute('src','https://manakanemu.github.io/ExHentaiReader/ReloadStructure.js?'+parseInt(Date.parse(new Date())/1000)); s.setAttribute('id','exReader'); document.body.appendChild(s);
+```  
+### 3、使用方法
+1、打开exhentai主页，点击书签运行脚本
+2、运行书签后页面会刷新，刷新后点击预览本子即可
+
+### 4、问题说明  
+框架版目前只是测试版，只有在直接点击本子的时候会自动进入阅读模式，在新标签打开的无效，并且还可能有其他隐藏的bug。我目前正在继续优化代码逻辑，并且正在编写能够适应手机的GUI，如果您有任何意见建议或bug反馈，请直接发issue。
+ 
