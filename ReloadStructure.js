@@ -121,7 +121,8 @@ function frameClicked(event) {
 }
 function exFrameLoaded() {  
     console.log('onload')
-    window.myframe.document.getElementById('f_search').blur()
+    
+    // window.myframe.document.getElementById('f_search').blur()
     runReader()
 }
 if (!inExhentai()) {
@@ -137,7 +138,7 @@ if (!inExhentai()) {
     exFrame.setAttribute('id', 'myframe')
     exFrame.setAttribute('frameborder', '0')
     exFrame.setAttribute('onload', 'exFrameLoaded()')
-    exFrame.setAttribute('src', 'https://exhentai.org/')
+    exFrame.setAttribute('src', document.location.href)
     exFrame.setAttribute('onclick', 'frameClicked()')
     document.body.appendChild(exFrame)
 }
