@@ -43,7 +43,7 @@ function loadImg(i, first) {
 
 var importScript = document.getElementById('exReader')
 var tag_font_size = importScript.getAttribute('tag_font_size')
-if (tag_font_size) {
+if (tag_font_size) { \
     if (/(\d+)px/i.test(tag_font_size)) {
         tag_font_size = tag_font_size.match(/(\d+)px/i)[1]
         alert(tag_font_size)
