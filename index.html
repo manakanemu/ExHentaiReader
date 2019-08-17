@@ -2,22 +2,86 @@
 
 <head>
     <style>
-        html,body,#frameContainer {
-            margin: 0px;
-            width: 100%;
+        body,
+        html {
             height: 100%;
-
-        }
-        iframe{
             width: 100%;
-            height: 100%;
         }
 
+        #container {
+            width: 100%;
+            position: absolute;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: start;
+            align-items: center;
+        }
+
+        input {
+            height: 20px;
+            width: 100px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .line {
+            margin-top: 20px;
+        }
+
+        #genJs {
+            margin-top: 50px;
+            width: 180px;
+        }
+
+        #js {
+            width: 300px;
+        }
+
+        #genBox {
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: start;
+            align-items: center;
+        }
     </style>
+    <script>
+        function copy(str){
+            var input = document.createElement('input')
+            input.value = str
+            document.body.appendChild(input)
+            input.select()
+            document.execCommand("Copy");
+            document.body.removeChild(input);
+        }
+        function genJS() {
+            var jsAddress = "https://manakanemu.oss-cn-beijing.aliyuncs.com/vscode/ExHentaiReader/Reader.js"
+            var tag_font_size = document.getElementById('tag_font_size').value
+            var jsString = "javascript:if(document.getElementById('exReader')){ var s = document.getElementById('exReader'); s.parentElement.removeChild(s); } var s = document.createElement('script'); s.setAttribute('src', '"+jsAddress+"?' + parseInt(Date.parse(new Date()) / 100)); s.setAttribute('tag_font_size', '"+tag_font_size+"px');s.setAttribute('version', '1.2'); s.setAttribute('id', 'exReader'); document.body.appendChild(s);"
+            document.getElementById('js').value = jsString
+            copy(jsString)
+            document.getElementById('info').innerHTML = '脚本已复制到剪贴板！'
+            setTimeout(() => {
+                document.getElementById('info').innerHTML = ''
+            }, 3000);
+
+
+        }
+    </script>
 </head>
 
 <body>
-    <div id='frameContainer'>
-            <iframe src="https://exhentai.org/" frameborder="0" onload=""></iframe>
+    <div id="container">
+        <h1>配置生成器</h1>
+        <div class="confBox">
+            <div class="line">
+                标签尺寸：<input id="tag_font_size" type="text" placeholder="请输入整数">
+            </div>
+        </div>
+        <div id="genBox">
+            <input id="genJs" type="button" value="生成代码" onclick="genJS()">
+            <span id="info"></span>
+            <input id="js" type="text" readonly="readonly" style='margin-top: 20px;'>
+        </div>
+
     </div>
 </body>
