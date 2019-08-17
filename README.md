@@ -10,11 +10,9 @@
 **使用后：**  
 <img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/after.gif' width='220px' height='480px'>     
 ### 2、阅读器安装方法  
-手机浏览器随便打开一个网页，添加书签，然后用**下面这段代码**替换掉书签的地址
+手机浏览器随便打开一个网页，添加书签，然后用下面**代码生成器**中生成的代码替换掉书签的地址
 
-```
-javascript:var s = document.createElement('script'); s.setAttribute('step',20); s.setAttribute('src','https://manakanemu.github.io/ExHentaiReader/Reader.js?'+parseInt(Date.parse(new Date())/1000)); s.setAttribute('id','exReader'); document.body.appendChild(s);
-```
+[代码生成器](https://manakanemu.github.io/ExHentaiReader/)  
   
 ### 3、使用方法
 * 打开本子页面，点击书签即可运行。  
