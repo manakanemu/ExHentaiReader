@@ -26,15 +26,27 @@
 
         .line {
             margin-top: 20px;
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+            align-items: center;
         }
-
+        .lineTitle{
+            text-align: right;
+            display: block;
+            width: 80px;
+        }
+        .lineInput{
+            margin-left: 13px;
+            width: 250px;
+        }
         #genJs {
             margin-top: 50px;
             width: 180px;
         }
 
         #js {
-            width: 300px;
+            width: 400px;
         }
 
         #genBox {
@@ -43,6 +55,7 @@
             justify-content: start;
             align-items: center;
         }
+
     </style>
     <script>
         function copy(str){
@@ -54,7 +67,7 @@
             document.body.removeChild(input);
         }
         function genJS() {
-            var jsAddress = "https://manakanemu.oss-cn-beijing.aliyuncs.com/vscode/ExHentaiReader/Reader.js"
+            var jsAddress = "https://manakanemu.github.io/ExHentaiReader/Reader.js"
             var tag_font_size = document.getElementById('tag_font_size').value
             var jsString = "javascript:if(document.getElementById('exReader')){ var s = document.getElementById('exReader'); s.parentElement.removeChild(s); } var s = document.createElement('script'); s.setAttribute('src', '"+jsAddress+"?' + parseInt(Date.parse(new Date()) / 100)); s.setAttribute('tag_font_size', '"+tag_font_size+"px');s.setAttribute('version', '1.2'); s.setAttribute('id', 'exReader'); document.body.appendChild(s);"
             document.getElementById('js').value = jsString
@@ -63,8 +76,6 @@
             setTimeout(() => {
                 document.getElementById('info').innerHTML = ''
             }, 3000);
-
-
         }
     </script>
 </head>
@@ -74,12 +85,12 @@
         <h1>配置生成器</h1>
         <div class="confBox">
             <div class="line">
-                标签尺寸：<input id="tag_font_size" type="text" placeholder="请输入整数">
+                <span class="lineTitle">标签尺寸:</span> <input class="lineInput" id="tag_font_size" type="text" placeholder="请输入整数，若不修改则此项留空">
             </div>
         </div>
         <div id="genBox">
             <input id="genJs" type="button" value="生成代码" onclick="genJS()">
-            <span id="info"></span>
+            <span id="info" style="color: red"></span>
             <input id="js" type="text" readonly="readonly" style='margin-top: 20px;'>
         </div>
 

@@ -46,7 +46,6 @@ var tag_font_size = importScript.getAttribute('tag_font_size')
 if (tag_font_size) {
     if (/(\d+)px/i.test(tag_font_size)) {
         tag_font_size = tag_font_size.match(/(\d+)px/i)[1]
-        alert(tag_font_size)
         var style = document.createElement('style')
         style.innerHTML = '.gt,.gtl,.gtw{font-size: ' + tag_font_size.toString() + 'px;}'
         document.head.appendChild(style)
