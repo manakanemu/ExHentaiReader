@@ -72,7 +72,7 @@
             var jsString = "javascript:if(document.getElementById('exReader')){ var s = document.getElementById('exReader'); s.parentElement.removeChild(s); } var s = document.createElement('script'); s.setAttribute('src', '"+jsAddress+"?' + parseInt(Date.parse(new Date()) / 100)); s.setAttribute('tag_font_size', '"+tag_font_size+"px');s.setAttribute('version', '1.2'); s.setAttribute('id', 'exReader'); document.body.appendChild(s);"
             document.getElementById('js').value = jsString
             copy(jsString)
-            document.getElementById('info').innerHTML = '代码已复制到剪贴板！'
+            document.getElementById('info').innerHTML = '代码已复制到剪贴板!'
             setTimeout(() => {
                 document.getElementById('info').innerHTML = ''
             }, 3000);
