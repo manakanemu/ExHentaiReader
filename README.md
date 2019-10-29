@@ -12,7 +12,7 @@
 ### 2、阅读器安装方法  
 手机浏览器随便打开一个网页，添加书签，然后用下面**代码生成器**中生成的代码替换掉书签的地址
 
-[代码生成器](https://manakanemu.github.io/ExHentaiReader/)  
+[代码生成器(点这里)](https://manakanemu.github.io/ExHentaiReader/)  
   
 ### 3、使用方法
 * 打开本子页面，点击书签即可运行。  
