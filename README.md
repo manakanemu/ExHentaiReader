@@ -26,6 +26,13 @@
 * 如果有任何意见、建议或其他想说的，请直接发issue。  
 * 本项目依旧在改进中，当前可以一次性加载一页的本子，计划改成异步加载全部本子内容，同时优化代码
 
+### 5、备注
+* 功能全部放在```Reader.js```中，如果你有延迟更低的服务器，可以把```Reader.js```放到自己的服务器上，并将javascript的：
+``` 
+s.setAttribute('src', 'https://manakanemu.github.io/ExHentaiReader/Reader.js?' + parseInt(Date.parse(new Date()) / 100));
+```
+字段中的路径改为自己的路径。 
+
 ## 框架版(测试版)  
 ### 1、使用效果  
 一键注入脚本，重构网站，无需多次使用，目前正在优化逻辑，以及手机端Gui的适配  
