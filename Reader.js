@@ -103,6 +103,7 @@ function setPositionRecord(position) {
 
 function initReaderStructure() {
     window.reader = {}
+    window.reader.touch = false
     window.reader.scrollTop = window.pageYOffset
     window.reader.scrollDirection = -1
     window.reader.page = new Array()
@@ -220,9 +221,9 @@ function reframeWebpage() {
 
 var tag_font_size = document.getElementById('exReader').getAttribute('tag_font_size')
 if (tag_font_size) {
-        var style = document.createElement('style')
-        style.innerHTML = '.gt,.gtl,.gtw{font-size: ' + tag_font_size.toString() + 'px;}'
-        document.head.appendChild(style)
+    var style = document.createElement('style')
+    style.innerHTML = '.gt,.gtl,.gt w{font-size: ' + tag_font_size.toString() + 'px;}'
+    document.head.appendChild(style)
 }
 
 if (document.location.href.indexOf('https://exhentai.org/g/') > -1) {
@@ -251,8 +252,10 @@ window.onscroll = function () {
                 this.hidenToolBar()
 
             } else {
-                window.reader.scrollDirection = -1
-                this.showToolBar()
+                if (!window.reader.touch) {
+                    window.reader.scrollDirection = -1
+                    this.showToolBar()
+                }
             }
         }
         window.reader.scrollTop = currentScroll
@@ -261,9 +264,15 @@ window.onscroll = function () {
 window.onbeforeunload = function () {
     window.setPositionRecord(window.pageYOffset)
 }
-window.onunload = function(){
+window.onunload = function () {
     window.setPositionRecord(window.pageYOffset)
 }
 window.onblur = function () {
     window.setPositionRecord(window.pageYOffset)
+}
+window.ontouchstart = function () {
+    window.reader.touch = true
+}
+window.ontouchend = function () {
+    window.reader.touch = false
 }
