@@ -90,9 +90,12 @@ function recoverPosition() {
 
 function showToolBar() {
     document.getElementById('toolBar').style.transform = 'translateX(0)'
+    window.reader.toolbar.show = true
+    window.reader.touch = 0
 }
 function hidenToolBar() {
     document.getElementById('toolBar').style.transform = 'translateX(-100%)'
+    window.reader.toolbar.show = false
 }
 function setPositionRecord(position) {
     var exp = new Date()
@@ -103,7 +106,9 @@ function setPositionRecord(position) {
 
 function initReaderStructure() {
     window.reader = {}
-    window.reader.touch = false
+    window.reader.touch = 0
+    window.reader.toolbar = {}
+    window.reader.toolbar.show = false
     window.reader.scrollTop = window.pageYOffset
     window.reader.scrollDirection = -1
     window.reader.page = new Array()
@@ -244,22 +249,17 @@ if (document.location.href.indexOf('https://exhentai.org/g/') > -1) {
 }
 window.onscroll = function () {
     var currentScroll = window.pageYOffset
+    console.log(window.pageYOffset.toString()+","+window.reader.touch.toString())
     var direction = currentScroll - window.reader.scrollTop
-    if (this.Math.abs(direction) > 50) {
-        if (direction * window.reader.scrollDirection < 0) {
-            if (direction > 0) {
-                window.reader.scrollDirection = 1
-                this.hidenToolBar()
-
-            } else {
-                if (!window.reader.touch) {
-                    window.reader.scrollDirection = -1
-                    this.showToolBar()
-                }
-            }
+    if (direction > 0) {
+        if (window.reader.toolbar.show) {
+            this.hidenToolBar()
         }
-        window.reader.scrollTop = currentScroll
+    } else {
+        if ((!window.reader.toolbar.show) &&(window.reader.touch > 0) &&(window.reader.touch - currentScroll) > 50)
+            this.showToolBar()
     }
+    window.reader.scrollTop = currentScroll
 }
 window.onbeforeunload = function () {
     window.setPositionRecord(window.pageYOffset)
@@ -271,8 +271,8 @@ window.onblur = function () {
     window.setPositionRecord(window.pageYOffset)
 }
 window.ontouchstart = function () {
-    window.reader.touch = true
+    window.reader.touch = 0
 }
 window.ontouchend = function () {
-    window.reader.touch = false
+    window.reader.touch = window.pageYOffset
 }
