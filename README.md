@@ -6,9 +6,14 @@
 3、添加了重新加载和图片换源功能，再次执行标签即可对未加载的图片进行换源  
 ### 1、使用效果
 **使用前：**  
-<img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/before.jpg' width='220px' height='480px'>  
+<img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/1.PNG' width='220px' height='480px'>  
 **使用后：**  
-<img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/after.gif' width='220px' height='480px'>     
+* 图片满屏：  
+<img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/2.PNG' width='220px' height='480px'>  
+* 去顶端、去底端、恢复观看进度、换源等功能栏：  
+<img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/3.PNG' width='220px' height='480px'>    * 更改原网页按钮尺寸：  
+<img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/4.PNG' width='220px' height='480px'>    
+
 ### 2、阅读器安装方法  
 手机浏览器随便打开一个网页，添加书签，然后用下面**代码生成器**中生成的代码替换掉书签的地址
 
