@@ -220,11 +220,9 @@ function reframeWebpage() {
 
 var tag_font_size = document.getElementById('exReader').getAttribute('tag_font_size')
 if (tag_font_size) {
-    if (/(\d+)px/i.test(tag_font_size)) {
         var style = document.createElement('style')
         style.innerHTML = '.gt,.gtl,.gtw{font-size: ' + tag_font_size.toString() + 'px;}'
         document.head.appendChild(style)
-    }
 }
 
 if (document.location.href.indexOf('https://exhentai.org/g/') > -1) {
