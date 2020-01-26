@@ -8,10 +8,16 @@
 **使用前：**  
 <img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/1.PNG' width='220px' height='480px'>  
 **使用后：**  
-* 图片满屏：  
+* 图片满屏:  
+
 <img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/2.PNG' width='220px' height='480px'>  
-* 去顶端、去底端、恢复观看进度、换源等功能栏：  
-<img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/3.PNG' width='220px' height='480px'>    * 更改原网页按钮尺寸：  
+
+* 去顶端、去底端、恢复观看进度、换源等功能栏:  
+
+<img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/3.PNG' width='220px' height='480px'>  
+
+* 更改原网页按钮尺寸:  
+
 <img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/4.PNG' width='220px' height='480px'>    
 
 ### 2、阅读器安装方法  
