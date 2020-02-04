@@ -1,3 +1,34 @@
+function GET(url, fn, type, sync = true) {
+    if (type == 'jsonp') {
+        var script = document.createElement('script')
+        script.src = url
+        script.onload = function () {
+            var data = window.jsonpdata
+            window.jsonpdata = null
+            fn(data)
+        }
+        document.body.appendChild(script)
+    }
+    else {
+        var xhr = new XMLHttpRequest()
+        xhr.open('GET', url, sync)
+        xhr.onload = function () {
+            var responseText = this.responseText
+            if (type == 'json') {
+                fn(JSON.parse(responseText))
+            }
+            if (type == 'html') {
+                var container = document.createElement('div')
+                container.innerHTML = responseText
+                fn(container.childNodes)
+            }
+            if (type == 'text') {
+                fn(responseText)
+            }
+        }
+        xhr.send()
+    }
+}
 function hideElement(element) {
     if (element.style.opacity > 0) {
         element.style.opacity -= 0.05
@@ -60,7 +91,7 @@ function toBottom() {
 
 }
 function changeResource() {
-    console.log('changeResource')
+    // console.log('changeResource')
     window.reader.loaded = 0
     for (var i = 0; i < window.reader.page.length; i++) {
         if (!window.reader.image[i].complete) {
@@ -104,9 +135,10 @@ function setPositionRecord(position) {
     document.cookie = cookie
 }
 
-function initReaderStructure() {
+function initReaderObject() {
     window.reader = {}
     window.reader.touch = 0
+    window.reader.tag = {}
     window.reader.toolbar = {}
     window.reader.toolbar.show = false
     window.reader.scrollTop = window.pageYOffset
@@ -194,6 +226,7 @@ function initToolBarStructure() {
     reload.onclick = changeResource
     recover.onclick = recoverPosition
 }
+
 function initStyleLink() {
     var readerStyle = document.createElement('link');
     readerStyle.rel = 'stylesheet';
@@ -219,44 +252,95 @@ function reframeWebpage() {
         if (switchButton[i].getElementsByTagName('a')[0]) {
             switchButton[i].getElementsByTagName('a')[0].style = 'font-size:' + fontSize.toString() + 'px'
         }
-
     }
-
 }
+function translateTag() {
+    var tagBox = document.getElementsByClassName('gtl')
+    for (var i = 0; i < tagBox.length; i++) {
+        tagBox[i].classList.add('tag')
+    }
+    var tagBox = document.getElementsByClassName('gt')
+    for (var i = 0; i < tagBox.length; i++) {
+        tagBox[i].classList.add('tag')
+    }
+    var tagBox = document.getElementsByClassName('tag')
+    for (var i = 0; i < tagBox.length; i++) {
+        var tag = tagBox[i].getElementsByTagName('a')[0]
+        tagBox[i].setAttribute('selected', false)
+        var tagName = tag.innerText
+        tag.innerText = window.reader.tag.dic[tagName] || tagName
+        tag.setAttribute('tagName', tagName)
+        tag.setAttribute('translateName', tag.innerText)
+        tagBox[i].onclick = function () {
+            if (event && event.target != event.currentTarget) {
+                var tag = this.getElementsByTagName('a')[0]
+                // console.log(window.reader.tag.selected)
+                if (window.reader.tag.selected == this) {
+                    tag.innerText = tag.getAttribute('translateName')
+                    window.reader.tag.selected = null
+                } else {
+                    tag.innerHTML = tag.getAttribute('tagName')
+                    if (window.reader.tag.selected) {
+                        var otag = window.reader.tag.selected.getElementsByTagName('a')[0]
+                        otag.innerText = otag.getAttribute('translateName')
+                    }
+                    window.reader.tag.selected = this
+                }
+            }
+        }
+    }
+}
+var version = 1.4
+var exReader = document.getElementById('exReader')
+initReaderObject()
 
-var tag_font_size = document.getElementById('exReader').getAttribute('tag_font_size')
+var tag_font_size = eval(exReader.getAttribute('tag_font_size')) || ""
 if (tag_font_size) {
     var style = document.createElement('style')
     style.innerHTML = '.gt,.gtl,.gt w{font-size: ' + tag_font_size.toString() + 'px;}'
     document.head.appendChild(style)
 }
 
+var translate = exReader.getAttribute('translate')|| "true"
+if (eval(translate)) {
+    window.reader.tag.dic = localStorage.getItem('tagDic')
+    if (window.reader.tag.dic && (eval(exReader.getAttribute('version')) > version)) {
+        window.reader.tag.dic = JSON.parse(window.reader.tag.dic)
+        translateTag()
+    } else {
+        GET('https://manakanemu.oss-cn-beijing.aliyuncs.com/vscode/exhentai/tag.json.js?' + parseInt(Date.parse(new Date()) / 100),
+            function (data) {
+                window.reader.tag.dic = data
+                localStorage.setItem('tagDic', JSON.stringify(window.reader.tag.dic))
+                translateTag()
+            }, 'jsonp')
+    }
+}
+
 if (document.location.href.indexOf('https://exhentai.org/g/') > -1) {
-    if (!window.reader) {
-        console.log('first')
+        // console.log('first')
         document.body.scrollTop = 0
         document.documentElement.scrollTop = 0
         initStyleLink()
-        initReaderStructure()
         initImageStructure()
         initToolBarStructure()
         reframeWebpage()
-
         for (var i = 0; i < window.reader.page.length; i++) {
             loadImg(window.reader.page[i].url, i, true)
         }
-    }
+    
 }
+
 window.onscroll = function () {
     var currentScroll = window.pageYOffset
-    console.log(window.pageYOffset.toString()+","+window.reader.touch.toString())
+    // console.log(window.pageYOffset.toString() + "," + window.reader.touch.toString())
     var direction = currentScroll - window.reader.scrollTop
     if (direction > 0) {
         if (window.reader.toolbar.show) {
             this.hidenToolBar()
         }
     } else {
-        if ((!window.reader.toolbar.show) &&(window.reader.touch > 0) &&(window.reader.touch - currentScroll) > 50)
+        if ((!window.reader.toolbar.show) && (window.reader.touch > 0) && (window.reader.touch - currentScroll) > 50)
             this.showToolBar()
     }
     window.reader.scrollTop = currentScroll
