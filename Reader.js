@@ -231,7 +231,7 @@ function initStyleLink() {
     var readerStyle = document.createElement('link');
     readerStyle.rel = 'stylesheet';
     readerStyle.type = 'text/css';
-    readerStyle.href = 'https://manakanemu.oss-cn-beijing.aliyuncs.com/vscode/exhentai/reader.css?' + parseInt(Date.parse(new Date()) / 100);
+    readerStyle.href = 'https://manakanemu.github.io/ExHentaiReader/reader.css?' + parseInt(Date.parse(new Date()) / 100);
     document.body.appendChild(readerStyle);
     var iconStyle = document.createElement('link');
     iconStyle.rel = 'stylesheet';
@@ -308,7 +308,7 @@ if (eval(translate)) {
         window.reader.tag.dic = JSON.parse(window.reader.tag.dic)
         translateTag()
     } else {
-        GET('https://manakanemu.oss-cn-beijing.aliyuncs.com/vscode/exhentai/tag.json.js?' + parseInt(Date.parse(new Date()) / 100),
+        GET('https://manakanemu.github.io/ExHentaiReader/tag.json.js?' + parseInt(Date.parse(new Date()) / 100),
             function (data) {
                 window.reader.tag.dic = data
                 localStorage.setItem('tagDic', JSON.stringify(window.reader.tag.dic))
