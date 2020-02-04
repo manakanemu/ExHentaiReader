@@ -305,10 +305,11 @@ var translate = exReader.getAttribute('translate')|| "true"
 if (eval(translate)) {
     window.reader.tag.dic = localStorage.getItem('tagDic')
     if (window.reader.tag.dic && (eval(exReader.getAttribute('version')) > version)) {
-        alert()
+        alert(0)
         window.reader.tag.dic = JSON.parse(window.reader.tag.dic)
         translateTag()
     } else {
+        alert(1)
         GET('https://manakanemu.github.io/ExHentaiReader/tag.json.js?' + parseInt(Date.parse(new Date()) / 100),
             function (data) {
                 window.reader.tag.dic = data
