@@ -290,7 +290,7 @@ function translateTag() {
         }
     }
 }
-var version = 1.4
+var version = 1.3
 var exReader = document.getElementById('exReader')
 initReaderObject()
 
