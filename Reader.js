@@ -304,7 +304,7 @@ if (tag_font_size) {
 var translate = exReader.getAttribute('translate')|| "true"
 if (eval(translate)) {
     window.reader.tag.dic = localStorage.getItem('tagDic')
-    if (window.reader.tag.dic && (eval(exReader.getAttribute('version')) < version)) {
+    if (window.reader.tag.dic && !(eval(exReader.getAttribute('version')) < version)) {
         alert(0)
         window.reader.tag.dic = JSON.parse(window.reader.tag.dic)
         translateTag()
