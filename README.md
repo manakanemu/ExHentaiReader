@@ -29,6 +29,9 @@
 * 更改原网页按钮尺寸:  
 
 <img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/4.PNG' width='220px' height='480px'>    
+* 自定义标签尺寸和标签翻译:  
+
+<img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/5.PNG' width='220px' height='480px'>    
 
 ### 2 安装方法  
 手机浏览器随便打开一个网页，添加书签，然后用下面**代码生成器**中生成的代码替换掉书签的地址
