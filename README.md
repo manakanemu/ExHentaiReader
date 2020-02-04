@@ -9,11 +9,11 @@
 * [5 已知问题](#5-已知问题)  
 
 ### 0 更新  
-1、放弃了jquery，全部使用js实现，减少了加载库，提升运行效率  
-2、等待标识更加直观，改用顶部热力条的形式显示加载成功与未成功的图片  
-3、添加了重新加载和图片换源功能，再次执行标签即可对未加载的图片进行换源  
-4、将功能集成到了侧边栏
-5、标签翻译（已测试完毕，正在上线）
+1、等待标识更加直观，改用顶部热力条的形式显示加载成功与未成功的图片  
+2、添加了重新加载和图片换源功能，再次执行标签即可对未加载的图片进行换源  
+3、将功能集成到了侧边栏
+4、实现了标签翻译功能
+
 ### 1 使用效果
 **使用前：**  
 <img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/1.PNG' width='220px' height='480px'>  
@@ -28,7 +28,8 @@
 
 * 更改原网页按钮尺寸:  
 
-<img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/4.PNG' width='220px' height='480px'>    
+<img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/4.PNG' width='220px' height='480px'>  
+
 * 自定义标签尺寸和标签翻译:  
 
 <img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/5.PNG' width='220px' height='480px'>    
