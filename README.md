@@ -1,10 +1,20 @@
 # ExHentaiReader  
 ## 插件版(正式版)  
-### 0、更新  
+###
+* [0 更新](0-更新)  
+* [1 使用效果](1-使用效果)  
+* [2 安装方法](2-安装方法)  
+* [3 使用方法](3-使用方法)  
+* [4 说明](4-说明)  
+* [5 已知问题](4-已知问题)  
+
+### 0 更新  
 1、放弃了jquery，全部使用js实现，减少了加载库，提升运行效率  
 2、等待标识更加直观，改用顶部热力条的形式显示加载成功与未成功的图片  
 3、添加了重新加载和图片换源功能，再次执行标签即可对未加载的图片进行换源  
-### 1、使用效果
+4、将功能集成到了侧边栏
+5、标签翻译（已测试完毕，正在上线）
+### 1 使用效果
 **使用前：**  
 <img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/1.PNG' width='220px' height='480px'>  
 **使用后：**  
@@ -20,12 +30,12 @@
 
 <img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/4.PNG' width='220px' height='480px'>    
 
-### 2、阅读器安装方法  
+### 2 安装方法  
 手机浏览器随便打开一个网页，添加书签，然后用下面**代码生成器**中生成的代码替换掉书签的地址
 
 [代码生成器(点这里)](https://manakanemu.github.io/ExHentaiReader/)  
   
-### 3、使用方法
+### 3 使用方法
 * 打开本子页面，点击书签即可运行。  
 * 运行脚本后，页面上方会浮动显示加载热力条，绿色部分为加载完成部分，红色部分为加载未完成部分。消失或全部变绿表示图片全部加载完成。
 * 下滑出现工具栏，工具栏中四个按钮从上到下分别为“转到第一张图”、“转到最后一张图”、“恢复之前的观看位置”、“图片换源”
@@ -34,29 +44,28 @@
 
 
 
-### 4、问题说明
+### 4 说明
 * 本人只有ios设备，故没有对安卓设备的浏览器进行测试，脑测应该没问题。  
 * 如果有任何意见、建议或其他想说的，请直接发issue。  
-* 本项目依旧在改进中，当前可以一次性加载一页的本子，计划改成异步加载全部本子内容，同时优化代码
 
-### 5、备注
-* 功能全部放在```Reader.js```中，如果你有延迟更低的服务器，可以把```Reader.js、reader.css```放到自己的服务器上  
+### 5 已知问题
+*  iPad等类5:4屏幕的显示错位问题
 
 ## 框架版(测试版)  
-### 1、使用效果  
+### 1 使用效果  
 一键注入脚本，重构网站，无需多次使用，目前正在优化逻辑，以及手机端Gui的适配  
 <img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/test.GIF' width='220px' height='480px'>     
 
-### 2、安装方法   
+### 2 安装方法   
 手机浏览器随便打开一个网页，添加书签，然后用**下面这段代码**替换掉书签的地址
 
 ```
 javascript:var s = document.createElement('script');s.setAttribute('src','https://manakanemu.github.io/ExHentaiReader/ReloadStructure.js?'+parseInt(Date.parse(new Date())/1000)); s.setAttribute('id','exReader'); document.body.appendChild(s);
 ```  
-### 3、使用方法
+### 3 使用方法
 1、打开exhentai主页，点击书签运行脚本
 2、运行书签后页面会刷新，刷新后点击预览本子即可
 
-### 4、问题说明  
+### 4 说明  
 框架版目前只是测试版，只有在直接点击本子的时候会自动进入阅读模式，在新标签打开的无效。脚本注入后无法搜索关键词，目前只能先搜索关键词之后再使用脚本。还可能有其他bug。我目前正在继续优化代码逻辑，并且正在编写能够适应手机的GUI，如果您有任何意见建议或bug反馈，请直接发issue。
  
