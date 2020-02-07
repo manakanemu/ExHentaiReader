@@ -259,6 +259,10 @@ function translateTag() {
     for (var i = 0; i < tagBox.length; i++) {
         tagBox[i].classList.add('tag')
     }
+    var tagBox = document.getElementsByClassName('gtw')
+    for (var i = 0; i < tagBox.length; i++) {
+        tagBox[i].classList.add('tag')
+    }
     var tagBox = document.getElementsByClassName('gt')
     for (var i = 0; i < tagBox.length; i++) {
         tagBox[i].classList.add('tag')
