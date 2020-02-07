@@ -245,7 +245,7 @@ function reframeWebpage() {
     var switchBar = switchBox.getElementsByTagName('tr')[0]
     switchBar.style = 'display: flex; flex-flow: row nowrap; justify-content: center;'
     var switchButton = switchBar.getElementsByTagName('td')
-    var boxSize = Math.floor(window.screen.availWidth * window.devicePixelRatio / 11)
+    var boxSize = Math.floor(document.body.clientWidth / 11)
     var fontSize = Math.floor(boxSize * 0.7)
     for (var i = 0; i < switchButton.length; i++) {
         switchButton[i].style = 'display: flex; height:' + fontSize.toString() + 'px;width:' + fontSize.toString() + 'px;justify-content: center;font-size:' + fontSize.toString() + 'px;'
