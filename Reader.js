@@ -56,6 +56,7 @@ function imgLoadFailed() {
 function loadImg(pageurl, i, first) {
 
     // 通过pageurl获取图片url，并绑定到对应图片标签上
+    var color = document.getElementById('exReader').getAttribute('line-color') || 'yellow'
     var xhr = new XMLHttpRequest()
     xhr.open('GET', pageurl, true)
     xhr.onload = function () {
@@ -68,7 +69,7 @@ function loadImg(pageurl, i, first) {
             var img = document.getElementById('img' + i)
             if (first) {
                 var h = document.createElement('hr')
-                h.setAttribute('style', 'width:100%;height:8px;background-color:yellow;margin:0px;')
+                h.setAttribute('style', 'width:100%;height:8px;background-color:'+color+';margin:0px;')
                 img.parentElement.insertBefore(h, img)
             }
             img.setAttribute('src', imgUrl)
@@ -193,7 +194,7 @@ function initToolBarStructure() {
     bar.id = 'toolBar'
     bar.style.opacity = 1
 
-    window.reader.standardSize = document.getElementById('exReader').getAttribute('toolbar_size') || Math.round(Math.min(window.screen.availWidth, window.screen.availHeight) / 6) * window.devicePixelRatio
+    window.reader.standardSize = document.getElementById('exReader').getAttribute('toolbar-size') || Math.round(Math.min(window.screen.availWidth, window.screen.availHeight) / 6) * window.devicePixelRatio
     bar.style.width = window.reader.standardSize.toString() + 'px'
     var top = document.createElement('div')
     var bottom = document.createElement('div')
@@ -298,10 +299,10 @@ var version = 1.3
 var exReader = document.getElementById('exReader')
 initReaderObject()
 
-var tag_font_size = eval(exReader.getAttribute('tag_font_size')) || ""
-if (tag_font_size) {
+var tagFontsize = eval(exReader.getAttribute('tag-fontsize')) || ""
+if (tagFontsize) {
     var style = document.createElement('style')
-    style.innerHTML = '.gtw,.gt,.gtl,.gt w{font-size: ' + tag_font_size.toString() + 'px;}'
+    style.innerHTML = '.gtw,.gt,.gtl,.gt w{font-size: ' + tagFontsize.toString() + 'px;}'
     document.head.appendChild(style)
 }
 
