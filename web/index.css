@@ -1,0 +1,91 @@
+html,body{
+    height: 100%;
+    margin: 0px;
+}
+#app{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: start;
+    align-items: center;
+}
+#container{
+    width: 1040px;
+}
+#title{
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: start;
+    align-items: center;
+    border-bottom: 1px solid #409eff;
+}
+.logo{
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: start;
+    align-items: center;
+}
+.el-header{
+    border-bottom: 1px solid #e5e5e5;
+    margin: 0px 0px 40px 0px;
+
+}
+.logo>img{
+    margin: 15px;
+    height: 50px;
+    width: auto;
+}
+.logo>span{
+    font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+    margin: 0px 0px 0px 10px;
+    font-size: 28px;
+}
+.sg-container{
+    display: flex;
+    flex-flow: row wrap;
+    padding-bottom: 0px;
+}
+.ad-container{
+    margin: 20px 0px 0px 0px;
+    padding: 0px 20px 0px 20px;
+}
+.gen-command-container{
+    padding: 0px;
+}
+.attr-container{
+    width: 500px;
+    min-width: 500px;
+}
+.el-row{
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    width: 100%;
+    margin: 0px 0px 20px 0px;
+
+}
+.tip i{
+    font-size: 26px;
+    color: #8a8a8a;
+}
+.ad-button{
+    min-width: 400px;
+}
+.ad-button span{
+    color: rgb(102, 177, 255);
+    cursor: pointer;
+}
+.gen-command-container input{
+    cursor: pointer;
+}
+.el-main{
+    flex-grow: 0;
+    flex-shrink: 1;
+}
+.ad-box{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: start;
+    align-items: flex-start;
+}
