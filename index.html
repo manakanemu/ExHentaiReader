@@ -1,124 +1,105 @@
 <!DOCTYPE html>
 
 <head>
-    <style>
-        body,
-        html {
-            height: 100%;
-            width: 100%;
-        }
+    <link rel="stylesheet" href="./web/element.css">
+    <link rel="stylesheet" href="./web/index.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1644182_kmnvv0rgw79.css">
 
-        #container {
-            width: 100%;
-            position: absolute;
-            display: flex;
-            flex-flow: column nowrap;
-            justify-content: start;
-            align-items: center;
-        }
-
-
-        .confBox {
-            display: flex;
-            flex-flow: column nowrap;
-            justify-content: start;
-            align-items: center;
-        }
-
-        .line {
-            margin-top: 20px;
-            display: flex;
-            flex-flow: row nowrap;
-            justify-content: center;
-            align-items: center;
-        }
-
-        input{
-            height: 38px;
-            width: 400px;
-            font-size: 15px;
-            outline: none;
-            border-radius: 4px; 
-            box-sizing: border-box;
-        }
-        .lineInput {
-            
-            padding: 1px 10px 1px 10px;
-            border: 0px;
-            border-bottom:1px solid gray;;
-            margin: 20px 0px 10px 0px;
-        }
-
-        #genJs {
-            margin-top: 30px;
-            
-        }
-        #genJs:hover{
-            border: 1px solid black;
-
-        }
-
-        #js {
-            width: 400px;
-            height: 140px;
-        }
-
-        #genBox {
-            display: flex;
-            flex-flow: column nowrap;
-            justify-content: start;
-            align-items: center;
-        }
-    </style>
-    <script>
-        function copy(str) {
-            var input = document.createElement('input')
-            input.value = str
-            document.body.appendChild(input)
-            input.select()
-            document.execCommand("Copy");
-            document.body.removeChild(input);
-        }
-
-        function genJS() {
-            var jsAddress = '"https://manakanemu.github.io/ExHentaiReader/Reader.js?"'
-            var attrString = ''
-            var inputs = document.getElementsByClassName('lineInput')
-            for (var i = 0; i < inputs.length; i++) {
-                if (inputs[i].value) {
-                    attrString += 's.setAttribute("' + inputs[i].getAttribute('name') + '","' + inputs[i].value + '");'
-                }
-            }
-
-            var jsString = 'javascript: (function () { var s = document.createElement("script"); s.setAttribute("id","exReader");s.setAttribute("src", ' + jsAddress + '+parseInt(Date.parse(new Date()) / 100));'
-            jsString += attrString
-            jsString += "document.body.appendChild(s);}())"
-            document.getElementById('js').value = jsString
-            copy(jsString)
-            document.getElementById('info').innerHTML = '代码已复制到剪贴板,若复制失败请手动复制下面代码！'
-            setTimeout(() => {
-                document.getElementById('info').innerHTML = ''
-            }, 3000);
-        }
-    </script>
+    <script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/vue/2.6.11/vue.min.js"></script>
+    <script src="./web/element.js"></script>
+    <script src="./web/index.js"></script>
 </head>
 
 <body>
-    <div id="container">
-        <h1>代码生成器</h1>
-        <div class="confBox">
-            <input class="lineInput" name="version" type="text" value="1.3" style="display: none;">
-            <input class="lineInput" name="tag-fontsize" type="text" placeholder="自定义标签尺寸，请输入整数，不修改则此项留空">
-            <input class="lineInput" name="toolbar-size" type="text" placeholder="自定义工具栏尺寸，请输入整数，不修改则此项留空">
-            <input class="lineInput" name="line-color" type="text" placeholder="分割线颜色，格式为'#e5e5e5'，不修改则此项留空'">
+    <div id="app">
+        <input type="text" class="attribute" name="version" value="1.3" style="display: none;">
+        <el-container id="container">
+            <el-header height="80px">
+                <div class="logo">
+                    <img src="./web/icon.png" alt="">
+                    <span>代码生成器</span>
+                </div>
+            </el-header>
 
-        </div>
-        <div id="genBox">
-            <input id="genJs" type="button" value="生成代码" onclick="genJS()">
-            <span id="info" style="color: red"></span>
-            <textarea id="js" type="text" style='margin-top: 20px;'></textarea>
-        </div>
-        
+            <el-main class='sg-container'>
+                <div class="attr-container" v-for="attr in attribute">
+                    <el-row gutter="20">
+                        <el-col span=6 class="name">
+                            <span>{{attr.name}}</span>
+                        </el-col>
+                        <el-col span=14 class="value">
+                            <el-input class="attribute" :placeholder="attr.placeholder" :name="attr.attrName"
+                                v-model:value="attr.value">
+                            </el-input>
+                        </el-col>
+                        <el-col span=4 class="tip">
+                            <el-popover placement="top-end" :title="attr.name" width="300" trigger="hover"
+                                :content="attr.tip" close-delay="0">
+                                <i slot="reference" class="iconfont iconquestion"></i>
+                            </el-popover>
+                        </el-col>
+                    </el-row>
+                </div>
+            </el-main>
 
-    </div>
+            <el-main class="ad-container">
+                <div class="ad-box" :style="adStyle">
+                    <div class="attr-container" v-for="attr in adAttribute">
+                        <el-row gutter="20">
+                            <el-col span=6 class="name">
+                                <span>{{attr.name}}</span>
+                            </el-col>
+                            <!-- 可选的控件 -->
+                            <!-- 输入框 -->
+                            <el-col span=14 class="value" v-if="attr.type=='input'">
+                                <el-input class="attribute" :placeholder="attr.placeholder" :name="attr.attrName"
+                                    v-model:value="attr.value">
+                                </el-input>
+                            </el-col>
+                            <!-- 颜色选择器 -->
+                            <el-col span=14 class="value" v-if="attr.type=='colorPicker'">
+                                <el-color-picker v-model="attr.value"></el-color-picker>
+                            </el-col>
+                            <!-- 开关 -->
+                            <el-col span=14 class="value" v-if="attr.type=='switch'">
+                                <el-switch v-model="attr.value" :active-text="attr.active"
+                                    :inactive-text="attr.inactive" active-value="true" inactive-value="false">
+                                </el-switch>
+                            </el-col>
+                            <!-- 可选的控件 -->
+                            <el-col span=4 class="tip">
+                                <el-popover placement="top-end" :title="attr.name" width="300" trigger="hover"
+                                    :content="attr.tip" close-delay="0">
+                                    <i slot="reference" class="iconfont iconquestion"></i>
+                                </el-popover>
+                            </el-col>
+
+
+                        </el-row>
+                    </div>
+
+                </div>
+                <!-- 显示按钮 -->
+                <el-row class="ad-button">
+                    <el-col span="8" offset="8" align="middle">
+                        <span @click="showAd($event)">{{adButton}}</span>
+                    </el-col>
+                </el-row>
+            </el-main>
+            <el-main class="gen-command-container">
+                <el-row gutter="20">
+                    <el-col span="20">
+                        <el-input id="code" readonly placeholder='请点击"生成代码"' v-model:value="command"
+                            @select="selectCode" type="textarea" autosize="{minRows:1}"></el-input>
+                    </el-col>
+                    <el-col span="4">
+                        <el-button type="primary" @click="genCode">生成代码</el-button>
+                    </el-col>
+                </el-row>
+            </el-main>
+        </el-container>
+
+    </div> 
+    
 </body>
