@@ -79,7 +79,7 @@ $(function () {
                 this.command = jsString
                 copy(jsString)
                 this.$message({
-                    message: '代码以复制到剪贴板，如果复制失败请手动复制。',
+                    message: '代码已复制到剪贴板，如果复制失败请手动复制。',
                     type: 'success',
                     duration:'5000'
                   });
