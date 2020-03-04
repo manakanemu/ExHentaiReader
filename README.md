@@ -49,7 +49,7 @@
 ### 5 已知问题
 *  iPad等类5:4屏幕的显示错位问题
 
-## ~~框架版(测试版) 
+## ~~框架版(测试版)~~ 
 ### 1 使用效果  
 一键注入脚本，重构网站，无需多次使用，目前正在优化逻辑，以及手机端Gui的适配  
 <img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/test.GIF' width='220px' height='480px'>     
@@ -62,5 +62,5 @@ javascript:var s = document.createElement('script');s.setAttribute('src','https:
 1、打开exhentai主页，点击书签运行脚本
 2、运行书签后页面会刷新，刷新后点击预览本子即可
 ### 4 说明  
-框架版目前只是测试版，只有在直接点击本子的时候会自动进入阅读模式，在新标签打开的无效。脚本注入后无法搜索关键词，目前只能先搜索关键词之后再使用脚本。还可能有其他bug。我目前正在继续优化代码逻辑，并且正在编写能够适应手机的GUI，如果您有任何意见建议或bug反馈，请直接发issue。~~
+框架版目前只是测试版，只有在直接点击本子的时候会自动进入阅读模式，在新标签打开的无效。脚本注入后无法搜索关键词，目前只能先搜索关键词之后再使用脚本。还可能有其他bug。我目前正在继续优化代码逻辑，并且正在编写能够适应手机的GUI，如果您有任何意见建议或bug反馈，请直接发issue。
  
