@@ -322,7 +322,20 @@ if (eval(translate)) {
     }
 }
 
-if (document.location.href.indexOf('https://exhentai.org/g/') > -1) {
+if (document.location.href.indexOf('//exhentai.org/g/') > -1) {
+        // console.log('first')
+        document.body.scrollTop = 0
+        document.documentElement.scrollTop = 0
+        initStyleLink()
+        initImageStructure()
+        initToolBarStructure()
+        reframeWebpage()
+        for (var i = 0; i < window.reader.page.length; i++) {
+            loadImg(window.reader.page[i].url, i, true)
+        }
+    
+}
+if (document.location.href.indexOf('//e-hentai.org/g/') > -1) {
         // console.log('first')
         document.body.scrollTop = 0
         document.documentElement.scrollTop = 0
