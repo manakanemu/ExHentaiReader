@@ -19,12 +19,12 @@
 
 ### 1 使用效果
 **使用前：**  
-<img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/1.PNG' width='220px' height='480px'>  
+<img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/1.png' width='220px' height='480px'>  
 **使用后：**  
 
 |图片铺满|侧边功能栏|标签翻译|自定义按钮尺寸|
 |-------|---------|--------|------------|
-|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/2.PNG' width='220px'>|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/3.PNG' width='220px'>|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/5.PNG' width='220px'>|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/4.PNG' width='220px'>|
+|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/2.png' width='220px'>|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/3.png' width='220px'>|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/5.png' width='220px'>|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/4.png' width='220px'>|
 
 
 ### 2 安装方法  
