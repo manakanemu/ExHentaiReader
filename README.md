@@ -47,7 +47,7 @@
 * 由于本人学习研究方向和web以及移动端app并不相关，想进一步优化但苦于缺乏相关UI设计经验，如果您知道任何优秀的案例，也可以发到issue里，感谢。
 
 ### 5 更新计划
-移动端优化布局：  
+移动端优化布局调试中：  
 <img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/update.png' width='220px' height='480px'>  
 
 ### 6 已知问题
