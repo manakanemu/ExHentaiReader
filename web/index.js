@@ -8,7 +8,7 @@ function copy(str) {
 }
 
 function genJS(attrs) {
-    var jsAddress = '"https://manakanemu.github.io/ExHentaiReader/Reader.js?"'
+    var jsAddress = '"'+window.location.origin+'/ExHentaiReader/Reader.js?"'
     var attrString = ''
 
     for (var i = 0; i < attrs.length; i++) {
@@ -29,8 +29,16 @@ $(function () {
         data: {
             attribute: [
                 {
-                    name: '标签尺寸:',
-                    placeholder: '请输入1～999整数,不修改则留空',
+                    name: '信息栏字号:',
+                    placeholder: '请输入整数,不修改则留空,默认为9',
+                    tip: '标签尺寸是指本子分类标签的大小，通过输入不同数字可以放大或缩小标签，可以多次调整寻找自己手机最合适的大小。',
+                    attrName: 'fontsize',
+                    value: '',
+                    type:'input'
+                },
+                {
+                    name: '标签字号:',
+                    placeholder: '请输入整数,不修改则留空,默认为9',
                     tip: '标签尺寸是指本子分类标签的大小，通过输入不同数字可以放大或缩小标签，可以多次调整寻找自己手机最合适的大小。',
                     attrName: 'tag-fontsize',
                     value: '',
@@ -62,6 +70,15 @@ $(function () {
                     type:'switch',
                     active:'翻译',
                     inactive:'不翻译'
+                },
+                {
+                    name:'使用优化布局:',
+                    value:'true',
+                    attrName:'rebuild',
+                    tip:'开启后使用对移动设备优化的布局',
+                    type:'switch',
+                    active:'使用',
+                    inactive:'不使用'
                 }
             ],
             adButton: "更多配置选项",
