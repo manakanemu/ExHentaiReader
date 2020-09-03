@@ -8,8 +8,7 @@ function GET(url, fn, type, sync = true) {
             fn(data)
         }
         document.body.appendChild(script)
-    }
-    else {
+    } else {
         var xhr = new XMLHttpRequest()
         xhr.open('GET', url, sync)
         xhr.onload = function () {
@@ -29,6 +28,7 @@ function GET(url, fn, type, sync = true) {
         xhr.send()
     }
 }
+
 function hideElement(element) {
     if (element.style.opacity > 0) {
         element.style.opacity -= 0.05
@@ -41,6 +41,7 @@ function hideElement(element) {
 function barComplete(i) {
     hideElement(window.reader.progressBars[i].dom)
 }
+
 function imgLoadSuccess() {
     window.reader.loaded++
     var order = this.getAttribute('order')
@@ -50,9 +51,11 @@ function imgLoadSuccess() {
         hideElement(document.getElementById('titleBar'))
     }
 }
+
 function imgLoadFailed() {
     this.setAttribute('src', this.src)
 }
+
 function loadImg(pageurl, i, first) {
 
     // 通过pageurl获取图片url，并绑定到对应图片标签上
@@ -69,7 +72,7 @@ function loadImg(pageurl, i, first) {
             var img = document.getElementById('img' + i)
             if (first) {
                 var h = document.createElement('hr')
-                h.setAttribute('style', 'width:100%;height:8px;background-color:'+color+';margin:0px;')
+                h.setAttribute('style', 'width:100%;height:8px;background-color:' + color + ';margin:0px;')
                 img.parentElement.insertBefore(h, img)
             }
             img.setAttribute('src', imgUrl)
@@ -84,6 +87,7 @@ function toTop() {
         behavior: "smooth"
     });
 }
+
 function toBottom() {
     window.scrollTo({
         top: window.reader.image[window.reader.size - 1].dom.offsetTop,
@@ -91,6 +95,7 @@ function toBottom() {
     });
 
 }
+
 function changeResource() {
     // console.log('changeResource')
     window.reader.loaded = 0
@@ -110,6 +115,7 @@ function changeResource() {
         hideElement(document.getElementById('titleBar'))
     }
 }
+
 function recoverPosition() {
     var position = parseInt(document.cookie.match(/mrp=(.+?);/i)[1])
     if (position) {
@@ -119,16 +125,21 @@ function recoverPosition() {
         });
     }
 }
+function originWebpage(){
+    window.location.href = window.location.origin+window.location.pathname+ '?originalReader='+ parseInt(Date.parse(new Date()) / 1000)
+}
 
 function showToolBar() {
     document.getElementById('toolBar').style.transform = 'translateX(0)'
     window.reader.toolbar.show = true
     window.reader.touch = 0
 }
+
 function hidenToolBar() {
     document.getElementById('toolBar').style.transform = 'translateX(-100%)'
     window.reader.toolbar.show = false
 }
+
 function setPositionRecord(position) {
     var exp = new Date()
     exp.setTime(exp.getTime() + 20 * 24 * 60 * 60 * 1000)
@@ -138,6 +149,8 @@ function setPositionRecord(position) {
 
 function initReaderObject() {
     window.reader = {}
+    window.reader.info = {}
+    window.reader.setting = document.getElementById('exReader')
     window.reader.touch = 0
     window.reader.tag = {}
     window.reader.toolbar = {}
@@ -148,8 +161,29 @@ function initReaderObject() {
     window.reader.image = new Array()
     window.reader.progressBars = new Array()
     window.reader.loaded = 0
-
 }
+
+function gatherInfo() {
+    try {
+        const title = document.getElementById('gn').innerText || ''
+        const cover = document.getElementById('gd1').innerHTML.match(/url\((.*)\)/i)[1] || ''
+        window.reader.info.title = title
+        window.reader.info.cover = cover
+    }catch (e) {
+
+    }
+    const isTranslate = window.reader.setting.getAttribute('translate') || "true"
+    const isrebuild = window.reader.setting.getAttribute('rebuild') || "true"
+
+    const fontSize = eval(window.reader.setting.getAttribute('fontsize')) || 9
+    const tagFontSize =  eval(window.reader.setting.getAttribute('tag-fontsize')) || 9
+
+    window.reader.info.fontSize = fontSize
+    window.reader.info.tagFontSize = tagFontSize
+    window.reader.info.isTranslate = eval(isTranslate)
+    window.reader.info.isRebuild = eval(isrebuild)
+}
+
 function initImageStructure() {
     //获取exhentai页面的容器
     var container = document.getElementById('gdt')
@@ -190,71 +224,97 @@ function initImageStructure() {
 
 
 function initToolBarStructure() {
-    var bar = document.createElement('div')
+    const bar = document.createElement('div')
     bar.id = 'toolBar'
     bar.style.opacity = 1
-
-    window.reader.standardSize = document.getElementById('exReader').getAttribute('toolbar-size') || Math.round(Math.min(window.screen.availWidth, window.screen.availHeight) / 6) * window.devicePixelRatio
-    bar.style.width = window.reader.standardSize.toString() + 'px'
-    var top = document.createElement('div')
-    var bottom = document.createElement('div')
-    var recover = document.createElement('div')
-    var reload = document.createElement('div')
-    var topIcon = document.createElement('i')
-    var bottomIcon = document.createElement('i')
-    var recoverIcon = document.createElement('i')
-    var reloadIcon = document.createElement('i')
+    window.reader.info.toolbarSize  = document.getElementById('exReader').getAttribute('toolbar-size') || Math.round(Math.min(window.screen.availWidth, window.screen.availHeight) / 6) * window.devicePixelRatio
+    bar.style.width = window.reader.info.toolbarSize.toString() + 'pt'
+    const top = document.createElement('div')
+    const bottom = document.createElement('div')
+    const recover = document.createElement('div')
+    const reload = document.createElement('div')
+    const origin = document.createElement('div')
+    const topIcon = document.createElement('i')
+    const bottomIcon = document.createElement('i')
+    const recoverIcon = document.createElement('i')
+    const reloadIcon = document.createElement('i')
+    const originIcon = document.createElement('i')
     topIcon.className = 'iconfont icon-up'
-    topIcon.style.fontSize = Math.round(window.reader.standardSize * 0.6).toString() + 'px'
+    topIcon.style.fontSize = Math.round(window.reader.info.toolbarSize * 0.6).toString() + 'pt'
     bottomIcon.className = 'iconfont icon-down'
-    bottomIcon.style.fontSize = Math.round(window.reader.standardSize * 0.6).toString() + 'px'
+    bottomIcon.style.fontSize = Math.round(window.reader.info.toolbarSize * 0.6).toString() + 'pt'
     recoverIcon.className = 'iconfont icon-huifu'
-    recoverIcon.style.fontSize = Math.round(window.reader.standardSize * 0.6).toString() + 'px'
+    recoverIcon.style.fontSize = Math.round(window.reader.info.toolbarSize * 0.6).toString() + 'pt'
     reloadIcon.className = 'iconfont icon-change'
-    reloadIcon.style.fontSize = Math.round(window.reader.standardSize * 0.6).toString() + 'px'
+    reloadIcon.style.fontSize = Math.round(window.reader.info.toolbarSize * 0.6).toString() + 'pt'
+    originIcon.className = 'iconfont icon-original'
+    originIcon.style.fontSize = Math.round(window.reader.info.toolbarSize * 0.6).toString() + 'pt'
     top.appendChild(topIcon)
     bottom.appendChild(bottomIcon)
     recover.appendChild(recoverIcon)
     reload.appendChild(reloadIcon)
+    origin.appendChild(originIcon)
     bar.appendChild(top)
     bar.appendChild(bottom)
     bar.appendChild(recover)
     bar.appendChild(reload)
+    bar.appendChild(origin)
     document.body.appendChild(bar)
 
     top.onclick = toTop
     bottom.onclick = toBottom
     reload.onclick = changeResource
     recover.onclick = recoverPosition
+    origin.onclick = originWebpage
 }
 
 function initStyleLink() {
     var readerStyle = document.createElement('link');
     readerStyle.rel = 'stylesheet';
     readerStyle.type = 'text/css';
-    readerStyle.href = 'https://manakanemu.github.io/ExHentaiReader/reader.css?' + parseInt(Date.parse(new Date()) / 100);
+    readerStyle.href = 'https://manakanemu.github.io/ExHentaiReader/reader.css?' + parseInt(Date.parse(new Date()) / 1000);
     document.body.appendChild(readerStyle);
-    var iconStyle = document.createElement('link');
-    iconStyle.rel = 'stylesheet';
-    iconStyle.type = 'text/css';
-    iconStyle.href = 'https://at.alicdn.com/t/font_1345377_wn98j672mcn.css?' + parseInt(Date.parse(new Date()) / 100);
-    document.body.appendChild(iconStyle);
+    const iconStyle1 = document.createElement('link');
+    iconStyle1.rel = 'stylesheet';
+    iconStyle1.type = 'text/css';
+    iconStyle1.href = 'https://at.alicdn.com/t/font_1345377_wn98j672mcn.css';
+    document.body.appendChild(iconStyle1);
+    const iconStyle2 = document.createElement('link');
+    iconStyle2.rel = 'stylesheet';
+    iconStyle2.type = 'text/css';
+    iconStyle2.href = '//at.alicdn.com/t/font_2044102_jyw69l1l0pj.css';
+    document.body.appendChild(iconStyle2);
 }
+
 function reframeWebpage() {
-    var switchBox = document.getElementsByClassName('ptb')[0]
-    switchBox.style = 'width:100%;'
-    var switchBar = switchBox.getElementsByTagName('tr')[0]
-    switchBar.style = 'display: flex; flex-flow: row nowrap; justify-content: center;'
-    var switchButton = switchBar.getElementsByTagName('td')
-    var boxSize = Math.floor(document.body.clientWidth / 11)
-    var fontSize = Math.floor(boxSize * 0.7)
-    for (var i = 0; i < switchButton.length; i++) {
-        switchButton[i].style = 'display: flex; height:' + fontSize.toString() + 'px;width:' + fontSize.toString() + 'px;justify-content: center;font-size:' + fontSize.toString() + 'px;'
-        if (switchButton[i].getElementsByTagName('a')[0]) {
-            switchButton[i].getElementsByTagName('a')[0].style = 'font-size:' + fontSize.toString() + 'px'
+    const boxSize = Math.floor(document.body.clientWidth / 11)
+    const fontSize = Math.floor(boxSize * 0.7)
+
+    const switchBox1 = document.getElementsByClassName('ptb')[0]
+    switchBox1.style = 'width:100%;'
+    const switchBar1 = switchBox1.getElementsByTagName('tr')[0]
+    switchBar1.style = 'display: flex; flex-flow: row nowrap; justify-content: center;'
+    const switchButton1 = switchBar1.getElementsByTagName('td')
+
+    // const switchBox2 = document.getElementsByClassName('gtb')[0]
+    // switchBox2.style = 'width:100%;'
+    // const switchBar2 = switchBox2.getElementsByTagName('tr')[0]
+    // switchBar2.style = 'display: flex; flex-flow: row nowrap; justify-content: center;'
+    // const switchButton2 = switchBar2.getElementsByTagName('td')
+
+    for (let i = 0; i < switchButton1.length; i++) {
+        switchButton1[i].style = 'display: flex; height:' + fontSize.toString() + 'px;width:' + fontSize.toString() + 'px;justify-content: center;font-size:' + fontSize.toString() + 'px;'
+        if (switchButton1[i].getElementsByTagName('a')[0]) {
+            switchButton1[i].getElementsByTagName('a')[0].style = 'font-size:' + fontSize.toString() + 'px'
         }
+
+        // switchButton2[i].style = 'display: flex; height:' + fontSize.toString() + 'px;width:' + fontSize.toString() + 'px;justify-content: center;font-size:' + fontSize.toString() + 'px;'
+        // if (switchButton2[i].getElementsByTagName('a')[0]) {
+        //     switchButton2[i].getElementsByTagName('a')[0].style = 'font-size:' + fontSize.toString() + 'px'
+        // }
     }
 }
+
 function translateTag() {
     var tagBox = document.getElementsByClassName('gtl')
     for (var i = 0; i < tagBox.length; i++) {
@@ -279,7 +339,6 @@ function translateTag() {
         tagBox[i].onclick = function () {
             if (event && event.target != event.currentTarget) {
                 var tag = this.getElementsByTagName('a')[0]
-                // console.log(window.reader.tag.selected)
                 if (window.reader.tag.selected == this) {
                     tag.innerText = tag.getAttribute('translateName')
                     window.reader.tag.selected = null
@@ -295,35 +354,155 @@ function translateTag() {
         }
     }
 }
-var version = 1.3
-var exReader = document.getElementById('exReader')
-initReaderObject()
 
-var tagFontsize = eval(exReader.getAttribute('tag-fontsize')) || ""
-if (tagFontsize) {
-    var style = document.createElement('style')
-    style.innerHTML = '.gtw,.gt,.gtl,.gt w{font-size: ' + tagFontsize.toString() + 'px;}'
+function rebuildTitleBar() {
+    const titleBar = document.getElementsByClassName('gm')[0]
+    const titleTopLeft = document.createElement('div')
+    const titleTopRight = document.createElement('div')
+    const titleBottom = document.createElement('div')
+    const titleTop = document.createElement('div')
+
+    const cover = document.createElement('img')
+    const title = document.getElementById('gn')
+    const subTitle = document.getElementById('gj')
+    const artInfo = document.getElementById('gd3')
+    const tag = document.getElementById('gd4')
+    const verticalLine = document.createElement('div')
+    const horizontalLine = document.createElement('div')
+    const tagAction = document.getElementById('tagmenu_act')
+    const tagNew = document.getElementById('tagmenu_new')
+
+    titleTopLeft.appendChild(cover)
+    titleTopRight.appendChild(title)
+    titleTopRight.appendChild(subTitle)
+    titleTopRight.appendChild(artInfo)
+    titleBottom.appendChild(tag)
+    titleTop.appendChild(titleTopLeft)
+    titleTop.appendChild(verticalLine)
+    titleTop.appendChild(titleTopRight)
+
+    titleBar.innerHTML = ''
+    titleBar.appendChild(titleTop)
+    titleBar.appendChild(horizontalLine)
+    titleBar.appendChild(titleBottom)
+
+
+    titleTopLeft.className = 'reader-title-top-left'
+    titleTopRight.className = 'reader-title-top-right'
+    titleBottom.className = 'reader-title-bottom'
+    titleTop.className = 'reader-title-top'
+    verticalLine.id = 'reader-title-top-verticalline'
+
+
+    titleBar.style = 'max-width:100%;width:100%;display:flex;flex-flow: column nowrap;justify-content: start;align-items: center;overflow: hidden;'
+    titleTop.style = 'width:100%;display: flex;flex-flow: row nowrap;justify-content: start;align-items: center;'
+    titleBottom.style = 'width:100%;'
+    titleTopLeft.style = "display: flex;flex-flow: column nowrap;justify-content: start;align-items: center;position: relative;width:38%;padding:2%;"
+    titleTopRight.style = 'padding:10px 0px 10px 0px;width:56%;'
+    verticalLine.style='margin:0px 2% 0px 0px;width:2px;background-color:black;'
+    verticalLine.style.height = titleTop.offsetHeight*0.9.toString()+'px'
+    horizontalLine.style='width:98%;height:1px;background-color:black;border:0px;'
+    tag.style='width:100%;border:0px;margin:5px 0px 5px 0px;'
+    tagAction.style='width:100%;height:auto;margin:10px 0px 0px 0px;'
+    tagAction.style.fontSize = window.reader.info.fontSize.toString()+'pt'
+    tagNew.style = 'width:100%;'
+
+    for(let i = 0;i < tagNew.getElementsByTagName('input').length;i++){
+        tagNew.getElementsByTagName('input')[i].style.fontSize
+    }
+
+
+    cover.onload = function(){
+        document.getElementById('reader-title-top-verticalline').style.height = document.getElementById('reader-title-top-verticalline').parentNode.offsetHeight*0.9.toString()+'px'
+    }
+    cover.src = window.reader.info.cover
+    cover.style = 'width:100%;'
+    for (let i =0;i<artInfo.childNodes.length;i++) {
+        artInfo.childNodes[i].style.fontSize = window.reader.info.fontSize.toString() + 'pt'
+    }
+
+
+    const infoClass = artInfo.childNodes[0]
+    infoClass.appendChild(artInfo.childNodes[1].childNodes[0])
+
+    infoClass.style.display='flex'
+    infoClass.style.flexFlow='row nowrap'
+    infoClass.childNodes[0].style.height='auto'
+    infoClass.childNodes[0].style.width='auto'
+    infoClass.childNodes[0].style.padding='10px 20px 10px 20px'
+    infoClass.childNodes[0].style.margin='0px 10% 0px 0px'
+    infoClass.childNodes[0].style.fontSize = window.reader.info.fontSize.toString() + 'pt'
+    artInfo.childNodes[3].getElementsByTagName('tr')[1].childNodes[0].style = 'padding:0px;text-align:left;'
+    artInfo.childNodes[4].style.paddingLeft = '0px'
+    document.getElementById('favoritelink').style.whiteSpace='nowrap'
+
+    title.onclick = function () {
+        this.style.whiteSpace = 'normal'
+        document.getElementById('reader-title-top-verticalline').style.height = document.getElementById('reader-title-top-verticalline').parentNode.offsetHeight*0.9.toString()+'px'
+
+    }
+    subTitle.onclick = function () {
+        this.style.whiteSpace = 'normal'
+        document.getElementById('reader-title-top-verticalline').style.height = document.getElementById('reader-title-top-verticalline').parentNode.offsetHeight*0.9.toString()+'px'
+
+    }
+
+}
+
+function setStyle() {
+    let style = document.createElement('style')
+    style.innerHTML = '.gtw,.gt,.gtl,.gt,.tag{font-size: ' + window.reader.info.tagFontSize.toString() + 'pt;}'
+    if(window.reader.info.isRebuild){
+        style.innerHTML += '.tc{font-size: ' + window.reader.info.tagFontSize.toString() + 'pt;}'
+        style.innerHTML += 'h1#gn,h1#gj{font-size: ' + window.reader.info.fontSize.toString() + 'pt;}'
+        style.innerHTML += '#gn,#gj{text-overflow: ellipsis;white-space: nowrap;overflow: hidden;cursor:pointer;}'
+        style.innerHTML += 'input#newtagfield,input#newtagbutton{font-size:'+window.reader.info.fontSize.toString()+'pt;line-height:normal;}'
+        style.innerHTML += 'input#newtagfield{width:70%;}'
+        style.innerHTML += 'input#newtagbutton{width:auto;}'
+    }
+
     document.head.appendChild(style)
+
 }
 
-var translate = exReader.getAttribute('translate')|| "true"
-if (eval(translate)) {
-    window.reader.tag.dic = localStorage.getItem('tagDic')
-    if (window.reader.tag.dic && !(eval(exReader.getAttribute('version')) < version)) {
-        window.reader.tag.dic = JSON.parse(window.reader.tag.dic)
-        translateTag()
-    } else {
-        GET('https://manakanemu.github.io/ExHentaiReader/tag.json.js?' + parseInt(Date.parse(new Date()) / 100),
-            function (data) {
-                window.reader.tag.dic = data
-                localStorage.setItem('tagDic', JSON.stringify(window.reader.tag.dic))
-                translateTag()
-            }, 'jsonp')
+var version = 1.3
+var isOrigin = window.location.href.indexOf('originalReader=')
+if(isOrigin > -1){
+    const href = window.location.href.split('&')
+    const orginTimestamp = parseInt(href[0].split('=')[1])
+    if(parseInt(Date.parse(new Date()) / 1000)-orginTimestamp > 5){
+        isOrigin = false
+    }else {
+        isOrigin = true
     }
+}else {
+    isOrigin = false
 }
+if(!isOrigin){
+    initReaderObject()
+    gatherInfo()
+    setStyle()
 
-if (document.location.href.indexOf('//exhentai.org/g/') > -1) {
-        // console.log('first')
+    if(window.reader.info.isRebuild){
+        rebuildTitleBar()
+    }
+
+    if (window.reader.info.isTranslate) {
+        window.reader.tag.dic = localStorage.getItem('tagDic')
+        if (window.reader.tag.dic && !(eval(window.reader.setting.getAttribute('version')) < version)) {
+            window.reader.tag.dic = JSON.parse(window.reader.tag.dic)
+            translateTag()
+        } else {
+            GET('https://manakanemu.github.io/ExHentaiReader/tag.json.js?' + parseInt(Date.parse(new Date()) / 1000),
+                function (data) {
+                    window.reader.tag.dic = data
+                    localStorage.setItem('tagDic', JSON.stringify(window.reader.tag.dic))
+                    translateTag()
+                }, 'jsonp')
+        }
+    }
+
+    if (document.location.href.indexOf('//exhentai.org/g/') > -1) {
         document.body.scrollTop = 0
         document.documentElement.scrollTop = 0
         initStyleLink()
@@ -333,10 +512,9 @@ if (document.location.href.indexOf('//exhentai.org/g/') > -1) {
         for (var i = 0; i < window.reader.page.length; i++) {
             loadImg(window.reader.page[i].url, i, true)
         }
-    
-}
-if (document.location.href.indexOf('//e-hentai.org/g/') > -1) {
-        // console.log('first')
+
+    }
+    if (document.location.href.indexOf('//e-hentai.org/g/') > -1) {
         document.body.scrollTop = 0
         document.documentElement.scrollTop = 0
         initStyleLink()
@@ -346,35 +524,37 @@ if (document.location.href.indexOf('//e-hentai.org/g/') > -1) {
         for (var i = 0; i < window.reader.page.length; i++) {
             loadImg(window.reader.page[i].url, i, true)
         }
-    
+    }
+    window.onscroll = function () {
+        var currentScroll = window.pageYOffset
+        var direction = currentScroll - window.reader.scrollTop
+        if (direction > 0) {
+            if (window.reader.toolbar.show) {
+                this.hidenToolBar()
+            }
+        } else {
+            if ((!window.reader.toolbar.show) && (window.reader.touch > 0) && (window.reader.touch - currentScroll) > 50)
+                this.showToolBar()
+        }
+        window.reader.scrollTop = currentScroll
+    }
+    window.onbeforeunload = function () {
+        window.setPositionRecord(window.pageYOffset)
+    }
+    window.onunload = function () {
+        window.setPositionRecord(window.pageYOffset)
+    }
+    window.onblur = function () {
+        window.setPositionRecord(window.pageYOffset)
+    }
+    window.ontouchstart = function () {
+        window.reader.touch = 0
+    }
+    window.ontouchend = function () {
+        window.reader.touch = window.pageYOffset
+    }
+
 }
 
-window.onscroll = function () {
-    var currentScroll = window.pageYOffset
-    // console.log(window.pageYOffset.toString() + "," + window.reader.touch.toString())
-    var direction = currentScroll - window.reader.scrollTop
-    if (direction > 0) {
-        if (window.reader.toolbar.show) {
-            this.hidenToolBar()
-        }
-    } else {
-        if ((!window.reader.toolbar.show) && (window.reader.touch > 0) && (window.reader.touch - currentScroll) > 50)
-            this.showToolBar()
-    }
-    window.reader.scrollTop = currentScroll
-}
-window.onbeforeunload = function () {
-    window.setPositionRecord(window.pageYOffset)
-}
-window.onunload = function () {
-    window.setPositionRecord(window.pageYOffset)
-}
-window.onblur = function () {
-    window.setPositionRecord(window.pageYOffset)
-}
-window.ontouchstart = function () {
-    window.reader.touch = 0
-}
-window.ontouchend = function () {
-    window.reader.touch = window.pageYOffset
-}
+
+
