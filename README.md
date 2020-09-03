@@ -40,7 +40,7 @@
 * 下滑出现功能栏，功能栏从上到下分别为“滚动到最上方”、“滚动到最下方”、“恢复之前的观看位置”、“图片换源”、“原汁原味”
 * 页面刷新或退出会自动记录观看位置，下次观看可使用“恢复之前的观看位置”恢复
 * 如果图片长时间未全部加载完成，可以点击工具栏第四个“图片换源”更换图片来源
-* 更加简便的使用方法，可以参见[此issue](https://github.com/manakanemu/ExHentaiReader/issues/2)
+* **更优雅简便的使用方法，可以参见[此issue](https://github.com/manakanemu/ExHentaiReader/issues/2)**
 
 
 
