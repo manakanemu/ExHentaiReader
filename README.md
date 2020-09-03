@@ -16,15 +16,17 @@
 2、添加了重新加载和图片换源功能，再次执行标签即可对未加载的图片进行换源  
 3、将功能集成到了侧边栏  
 4、实现了标签翻译功能
+5、调整了页面布局
+6、功能栏添加“原汁原味”功能
 
 ### 1 使用效果
 **使用前：**  
-<img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/1.png' width='220px' height='480px'>  
+<img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/1.jpg' width='220px' height='480px'>  
 **使用后：**  
 
-|图片铺满|侧边功能栏|标签翻译|自定义按钮尺寸|
+|移动端布局优化|图片铺满|下滑功能栏|标签翻译|
 |-------|---------|--------|------------|
-|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/2.png' width='220px'>|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/3.png' width='220px'>|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/5.png' width='220px'>|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/4.png' width='220px'>|
+|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/2.jpg' width='220px'>|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/3.jpg' width='220px'>|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/4.jpg' width='220px'>|<img src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/5.jpg' width='220px'>|
 
 
 ### 2 安装方法  
@@ -35,7 +37,7 @@
 ### 3 使用方法
 * 打开本子页面，点击书签即可运行。  
 * 运行脚本后，页面上方会浮动显示加载热力条，绿色部分为加载完成部分，红色部分为加载未完成部分。消失或全部变绿表示图片全部加载完成。
-* 下滑出现功能栏，功能栏中四个按钮从上到下分别为“转到第一张图”、“转到最后一张图”、“恢复之前的观看位置”、“图片换源”
+* 下滑出现功能栏，功能栏中四个按钮从上到下分别为“转到第一张图”、“转到最后一张图”、“恢复之前的观看位置”、“图片换源”、“原汁原味”
 * 页面刷新或退出会自动记录观看位置，下次观看可使用“恢复之前的观看位置”恢复
 * 如果图片长时间未全部加载完成，可以点击工具栏第四个“图片换源”更换图片来源
 * 更加简便的使用方法，可以参见[此issue](https://github.com/manakanemu/ExHentaiReader/issues/2)
