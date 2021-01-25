@@ -490,7 +490,7 @@ if(!isOrigin){
     getConfig()
     setStyle()
 
-    if(/(ex|e-)hentai.org($|\/tag|\/\?)/.test(document.location.href)){
+    if(/(ex|e-)hentai.org\/($|tag|\?)/.test(document.location.href)){
         if(window.reader.info.isOpenBlank){
             const links = document.getElementsByTagName('a')
             for(let a of links){
