@@ -25,7 +25,7 @@ function genJS(attrs) {
 $(function () {
 
     var app = new Vue({
-            el: '#app',
+        el: '#app',
         data: {
             attribute: [
                 {
@@ -49,14 +49,6 @@ $(function () {
                     placeholder: '请输入1～999整数，不修改则留空',
                     tip: '工具栏尺寸是指上滑时激活的工具栏的大小，通过输入不同数字可以放大或缩小工具栏，可以多次调整寻找自己手机最合适的大小',
                     attrName: 'toolbar-size',
-                    value: '',
-                    type:'input'
-                },
-                {
-                    name: '颜色:',
-                    placeholder: '日狗',
-                    tip: '手动阀手动阀手动阀手动阀',
-                    attrName: 'color',
                     value: '',
                     type:'input'
                 }
