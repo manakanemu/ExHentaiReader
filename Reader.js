@@ -495,17 +495,14 @@ if(!isOrigin){
         if(window.reader.info.isOpenBlank){
             (function () {
                 const links = document.getElementsByTagName('a')
-                console.log('links',links.length,links)
                 if(links.length < 1){
                     requestAnimationFrame(arguments.callee)
                 }else {
                     let sum = 0
                     for(let a of links){
-                        console.log('a')
                         if(/(ex|e-)hentai.org\/g\//.test(a.href)){
                             sum ++
                             a.target = '_blank'
-                            console.log('changed',a)
                         }
                     }
                     if(!sum){
