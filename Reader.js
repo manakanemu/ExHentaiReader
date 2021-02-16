@@ -498,6 +498,7 @@ if(!isOrigin){
             for(let a of links){
                 if(/(ex|e-)hentai.org\/g\//.test(a.href)){
                     a.target = '_blank'
+                    console.log(a)
                 }
             }
         }
