@@ -1,3 +1,4 @@
+console.log('run manakanemu exhentaireader')
 function GET(url, fn, type, sync = true) {
     if (type == 'jsonp') {
         var script = document.createElement('script')
