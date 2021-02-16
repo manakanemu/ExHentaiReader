@@ -500,13 +500,14 @@ if(!isOrigin){
                     requestAnimationFrame(arguments.callee)
                 }else {
                 for(let a of links){
+                    console.log('a')
                     if(/(ex|e-)hentai.org\/g\//.test(a.href)){
                         a.target = '_blank'
-                        console.log(a)
+                        console.log('changed',a)
                     }
                 }}
             }());
-            
+
         }
     }
 
