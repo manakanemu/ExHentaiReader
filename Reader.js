@@ -174,7 +174,7 @@ function getConfig() {
 
     }
     const scriptUrl = window.reader.setting.src.match(/(http.*?\/)Reader.js/)[1]
-    console.log(window.reader.setting.sr)
+
     const isTranslate = window.reader.setting.getAttribute('translate') || "true"
     const isrebuild = window.reader.setting.getAttribute('rebuild') || "true"
     const isOpenBlank = window.reader.setting.getAttribute('openBlank') || 'false'
@@ -493,14 +493,20 @@ if(!isOrigin){
 
     if(/(ex|e-)hentai.org\/($|tag|\?)/.test(document.location.href)){
         if(window.reader.info.isOpenBlank){
-            const links = document.getElementsByTagName('a')
-            console.log(links)
-            for(let a of links){
-                if(/(ex|e-)hentai.org\/g\//.test(a.href)){
-                    a.target = '_blank'
-                    console.log(a)
-                }
-            }
+            (function () {
+                const links = document.getElementsByTagName('a')
+                console.log(links)
+                if(links.length < 1){
+                    requestAnimationFrame(arguments.callee)
+                }else {
+                for(let a of links){
+                    if(/(ex|e-)hentai.org\/g\//.test(a.href)){
+                        a.target = '_blank'
+                        console.log(a)
+                    }
+                }}
+            }());
+            
         }
     }
 
@@ -569,6 +575,3 @@ if(!isOrigin){
     }
 
 }
-
-
-
