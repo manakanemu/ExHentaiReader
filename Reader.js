@@ -494,6 +494,7 @@ if(!isOrigin){
     if(/(ex|e-)hentai.org\/($|tag|\?)/.test(document.location.href)){
         if(window.reader.info.isOpenBlank){
             const links = document.getElementsByTagName('a')
+            console.log(links)
             for(let a of links){
                 if(/(ex|e-)hentai.org\/g\//.test(a.href)){
                     a.target = '_blank'
