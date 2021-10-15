@@ -9,7 +9,7 @@ function getOffsetTopByBody(el) {
     }
     return offsetTop
 }
-print('run manakanemu exhentaireader')
+print('Run Manakanemu/Exhentai Reader')
 function GET(url, fn, type, async = true) {
     // Ajax GET 请求封装，回调函数fn使用GET上下文，如果需要指定回调函数上下文，请指定GET上下文：GET.call(this,params...)
     print('GET: ' + url)
@@ -69,7 +69,9 @@ class GalleryInformation {
         const title = !!document.getElementById('gn') ? document.getElementById('gn').innerText : ''
         const cover = !!document.getElementById('gd1') ? document.getElementById('gd1').innerHTML.match(/url\((.*)\)/i)[1] : ''
         const infoDOMS = !!document.getElementById('gdd') ? document.getElementById('gdd').getElementsByTagName('tr') : []
-        const imgPerPage = document.getElementsByClassName('gdtm').length || document.getElementsByClassName('reader-img').length
+        const imgPerPage = document.getElementsByClassName('gpc')[0] && document.getElementsByClassName('gpc')[0].innerText.match(/(\d*?) - (\d*?) of/)?
+            Number(document.getElementsByClassName('gpc')[0].innerText.match(/(\d*?) - (\d*?) of/)[2])
+            :document.getElementsByClassName('gdtm').length || document.getElementsByClassName('reader-img').length
         const galleryUrl = window.location.protocol + '//' + window.location.host + window.location.pathname
         const metaInfo = {}
         for (let meta of infoDOMS) {
@@ -218,9 +220,10 @@ class GalleryPage {
         print('get image page from dom finish: page', this.index, this)
     }
     clearCallStack(){
-        for(let imgWidget of this.callStack){
-            imgWidget.updateArea()
-            imgWidget.imgInfo.callImageUrl()
+        while(this.callStack.length > 0){
+            const imageWidget = this.callStack.shift()
+            imageWidget.updateArea()
+            imageWidget.imgInfo.callImageUrl()
         }
     }
     callPageUrl(imageWidget){
@@ -314,14 +317,18 @@ class ImageWidget {
         imgInfo.containerWidth = containerWidth
         imgInfo.imageWidget = this
         const height = width / imgInfo.width * imgInfo.height
+        const container = document.createElement('div')
+        container.className = 'image-container'
+        const loadingBox = document.createElement('div')
+        loadingBox.className = 'loading-box'
+
         const img = document.createElement('img')
         img.setAttribute('id', 'img' + index)
         img.setAttribute('name', 'anchor' + index)
         img.setAttribute('order', index)
-        img.setAttribute('style', `display:none;width:${width}px;height:${height}px;`)
+        img.setAttribute('style', `display:none;width:${width}px;height:${height}px;border:0px;`)
         img.setAttribute('class', 'reader-img')
         img.setAttribute('src', blankImageUrl)
-
         img.onerror = () =>{
             this.state ++
             if(this.state == 6){
@@ -346,20 +353,35 @@ class ImageWidget {
         }
         imgInfo.stateProxy = (value) => {
             console.log(`stateProxy: index:${this.index} state:${this.state}`)
+            if(this.isShow){
+                if(this.state >= 1 && this.state < 6){
+                    this.loadingBoxShow('Loading ...')
+                }
+                if(this.state === 6){
+                    this.loadingBoxShow('Loading from the original ...')
+                }
+            }
+            if(this.state === -1){
+                this.loadingBoxHiden()
+            }
         }
-
-        parent.appendChild(img)
+        container.appendChild(loadingBox)
+        container.appendChild(img)
+        parent.appendChild(container)
 
         this.imgInfo = imgInfo
         this.webStructure = webStructure
         this.pageInfo = pageInfo
         this.img = img
+        this.loadingBox = loadingBox
+        this.imageContainer = container
         this.containerWidth = containerWidth
         this.blankImageUrl = blankImageUrl
         this.pos = getOffsetTopByBody(this.img) || -1
 
 
     }
+
     get state(){
         return this.imgInfo.state
     }
@@ -390,6 +412,15 @@ class ImageWidget {
     get isLoadStart(){
         return this.isLoading  || this.isLoaded
     }
+    loadingBoxShow(message){
+        if(message !== this.loadingBox.innerText){
+            this.loadingBox.innerText = message
+        }
+        this.loadingBox.style.display = 'block'
+    }
+    loadingBoxHiden(){
+        this.loadingBox.style.display = 'none'
+    }
     updateImageDOM(){
         if(this.img.src !== this.imgInfo.url){
             this.state ++
@@ -415,11 +446,13 @@ class ImageWidget {
         const pos = getOffsetTopByBody(this.img)
         this.pos = pos || -1
     }
-
+    get isShow(){
+        return this.img.style.display != 'none'
+    }
     show() {
-            this.img.style.display = 'block'
-            this.updatePos()
-            this.imgInfo.loadIntoWidget()
+        this.img.style.display = 'block'
+        this.updatePos()
+        this.imgInfo.loadIntoWidget()
     }
 
     hide() {
@@ -428,19 +461,152 @@ class ImageWidget {
 }
 
 class WebStructure {
-    constructor(config) {
+    constructor(config,galleryInformation) {
         this.config = config
         this.loadQueue = []
+        this.imageWidgets = []
+        this.galleryPages = []
+        this.resetFontSize(config)
         if (config.isMobileRebuild) {
-            this.mobileRebuild(config)
+            this.rebuildMobileStructure(config,galleryInformation)
         }
+
     }
 
     get isGallery() {
         return /\/exhentai\.org\/g\//.test(window.location.href)
     }
     get isWaitingForLoad(){
-        return this.loadQueue.length > 0
+        let count = 0
+        for(let page of this.galleryPages){
+            count += page.callStack.length
+        }
+        return count > 0
+    }
+    rebuildMobileStructure(config,galleryInformation){
+        const titleBar = document.getElementsByClassName('gm')[0]
+        const titleInfoCover = document.createElement('div')
+        const titleInfoDetail = document.createElement('div')
+        const titleTag = document.createElement('div')
+        const titleInfo = document.createElement('div')
+
+        const cover = document.createElement('img')
+        const coverMask = document.createElement('div')
+        const coverratio = 1/3
+        const title = document.getElementById('gn')
+        const subTitle = document.getElementById('gj')
+        const artInfo = document.getElementById('gd3')
+        const tag = document.getElementById('gd4')
+        const horizontalLine = document.createElement('div')
+        const tagAction = document.getElementById('tagmenu_act')
+        const tagNew = document.getElementById('tagmenu_new')
+
+        titleInfoCover.appendChild(cover)
+        titleInfoCover.appendChild(coverMask)
+        titleInfoDetail.appendChild(title)
+        titleInfoDetail.appendChild(subTitle)
+        titleInfoDetail.appendChild(artInfo)
+        titleTag.appendChild(tag)
+        titleInfo.appendChild(titleInfoCover)
+        // titleInfo.appendChild(verticalLine)
+        titleInfo.appendChild(titleInfoDetail)
+
+        titleBar.innerHTML = ''
+        titleBar.appendChild(titleInfo)
+        titleBar.appendChild(horizontalLine)
+        titleBar.appendChild(titleTag)
+
+
+        titleInfoCover.className = 'reader-title-top-cover'
+        titleInfoDetail.className = 'reader-title-top-detail'
+        titleTag.className = 'reader-title-tag'
+        titleInfo.className = 'reader-title-info'
+        // verticalLine.id = 'reader-title-top-verticalline'
+
+
+        titleBar.style = 'max-width:100%;width:100%;display:flex;flex-flow: column nowrap;justify-content: start;align-items: center;overflow: hidden;'
+        titleInfo.style = 'width:100%;display: flex;flex-flow: column nowrap;justify-content: start;align-items: center;'
+        titleTag.style = 'width:100%;'
+        titleInfoCover.style = `max-height:${document.body.clientWidth*coverratio}px;`
+        titleInfoDetail.style = 'padding:10px 0px 10px 0px;width:100%;'
+        horizontalLine.style='width:98%;height:1px;background-color:black;border:0px;'
+        tag.style='width:100%;border:0px;margin:5px 0px 5px 0px;'
+        tagAction.style='width:100%;height:auto;margin:10px 0px 0px 0px;'
+        tagAction.style.fontSize = config.fontSize.toString()+'pt'
+        tagNew.style = 'width:100%;'
+
+        if(document.getElementsByClassName('gpc')[0]){
+            document.getElementsByClassName('gpc')[0].style.display = 'none'
+        }
+        if(document.getElementById('gdo')){
+            document.getElementById('gdo').style.display = 'none'
+        }
+
+        cover.src = galleryInformation.cover
+
+        for(let i = 0;i < tagNew.getElementsByTagName('input').length;i++){
+            tagNew.getElementsByTagName('input')[i].style.fontSize
+        }
+
+        for (let i =0;i<artInfo.childNodes.length;i++) {
+            artInfo.childNodes[i].style.fontSize = config.fontSize.toString() + 'pt'
+        }
+
+        const infoClass = artInfo.childNodes[0]
+        infoClass.appendChild(artInfo.childNodes[1].childNodes[0])
+
+        infoClass.style.display='flex'
+        infoClass.style.flexFlow='row nowrap'
+        infoClass.childNodes[0].style.height='auto'
+        infoClass.childNodes[0].style.width='auto'
+        infoClass.childNodes[0].style.padding='10px 20px 10px 20px'
+        infoClass.childNodes[0].style.margin='0px 10% 0px 0px'
+        infoClass.childNodes[0].style.fontSize = config.fontSize.toString() + 'pt'
+        artInfo.childNodes[3].getElementsByTagName('tr')[1].childNodes[0].style = 'padding:0px;text-align:left;'
+        artInfo.childNodes[4].style.paddingLeft = '0px'
+        document.getElementById('favoritelink').style.whiteSpace='nowrap'
+
+        title.onclick = function () {
+            this.style.whiteSpace = 'normal'
+
+        }
+        subTitle.onclick = function () {
+            this.style.whiteSpace = 'normal'
+        }
+
+        const infoTable = document.getElementById('gdd')
+        if(infoTable){
+            const tableBody = infoTable.getElementsByTagName('tbody')[0]
+            const _rows = tableBody.getElementsByTagName('tr')
+            const rows = []
+            for(let row of _rows){
+                rows.push(row)
+            }
+
+            while(rows.length > 0){
+                const line = document.createElement('div')
+                let box = document.createElement('div')
+                line.className = 'reader-info-detail-row'
+                box.className = 'reader-info-detail-col'
+                let row = rows.shift()
+                row.parentElement.removeChild(row)
+                box.appendChild(row)
+                line.appendChild(box)
+
+                if(rows.length > 0){
+                    box = document.createElement('div')
+                    box.className = 'reader-info-detail-col'
+                    row = rows.shift()
+                    row.parentElement.removeChild(row)
+                    box.appendChild(row)
+                    line.appendChild(box)
+                }
+                tableBody.appendChild(line)
+            }
+        }
+    }
+    scollToTop(){
+        document.body.scrollTop = document.documentElement.scrollTop = 0
     }
     forceRefresh(){
         for(let imageWidget of this.imageWidgets){
@@ -454,16 +620,14 @@ class WebStructure {
         const imageNum = imageParser.imageNum
         //获取exhentai页面的容器
         const container = document.getElementById('gdt')
-        const tmpReaderContainer = document.createElement('div')
-        tmpReaderContainer.setAttribute('id', 'gdt')
-        tmpReaderContainer.style.padding = '0px'
-        container.parentElement.insertBefore(tmpReaderContainer, container)
-        const containerWidth = tmpReaderContainer.clientWidth
-        container.parentElement.removeChild(tmpReaderContainer)
+        const containerStyle = 'padding:0px;width:100%;max-width:none;margin:0px;'
+        container.style = containerStyle
+        // const containerWidth = container.clientWidth
+        const containerWidth = container.clientWidth
 
         const readerContainer = document.createElement('div')
         readerContainer.setAttribute('id', 'gdt')
-        readerContainer.style.padding = '0px'
+        readerContainer.style = containerStyle
         this.container = readerContainer
 
         // 从exhentai原始容器中读取每个页面的url添加到pageUrl，并生成对应的自定义图像标签
@@ -478,6 +642,7 @@ class WebStructure {
         }
         this.imageWidgets = imageWidgets
         this.loadQueue = loadQueue
+        this.galleryPages = imageParser.galleryPages
         container.parentElement.insertBefore(readerContainer, container)
         container.parentElement.removeChild(container)
     }
@@ -502,7 +667,7 @@ class WebStructure {
         var readerStyle = document.createElement('link');
         readerStyle.rel = 'stylesheet';
         readerStyle.type = 'text/css';
-        readerStyle.href = window.reader.info.scriptUrl + 'reader.css?' + parseInt(Date.parse(new Date()) / 1000);
+        readerStyle.href = this.config.scriptUrl + 'reader.css?' + parseInt(Date.parse(new Date()) / 1000);
         document.body.appendChild(readerStyle);
         const iconStyle1 = document.createElement('link');
         iconStyle1.rel = 'stylesheet';
@@ -516,7 +681,7 @@ class WebStructure {
         document.body.appendChild(iconStyle2);
     }
 
-    mobileRebuild(config) {
+    resetFontSize(config) {
         print('mobileRebuild')
         let style = document.createElement('style')
         let styleText = ''
@@ -524,6 +689,7 @@ class WebStructure {
         styleText += '.tc{font-size: ' + config.tagFontSize.toString() + 'pt;}'
         styleText += 'h1#gn,h1#gj{font-size: ' + config.fontSize.toString() + 'pt;}'
         styleText += '#gn,#gj{text-overflow: ellipsis;white-space: nowrap;overflow: hidden;cursor:pointer;}'
+        styleText += `.loading-box{font-size:${config.fontSize}px;}`
         styleText += 'input#newtagfield,input#newtagbutton{font-size:' + config.fontSize.toString() + 'pt;line-height:normal;}'
         styleText += 'input#newtagfield{width:70%;}'
         styleText += 'input#newtagbutton{width:auto;}'
@@ -619,8 +785,23 @@ class ActionListener {
     constructor(config,webStructure) {
         this.lazyLoadingSize = config.lazyLoadingSize
         this.webStructure = webStructure
+        this.isTouch = false
     }
     listenTouch(){
+        document.documentElement.ontouchstart = (e) => {
+            this.isTouch = true
+        }
+        document.documentElement.ontouchmove = () => {
+            this.isTouch = false
+        }
+        document.documentElement.ontouchend = () =>{
+            if(this.isTouch){
+                console.log('touch menu')
+            }else {
+                console.log('move')
+            }
+            window.this = false
+        }
 
     }
     listenScroll(){
@@ -633,13 +814,9 @@ class ActionListener {
     }
 
     lazyLoad(targetWidget){
-        if(!window.count){
-            window.count = 1
-        }else {
-            window.count ++
-        }
         while(this.webStructure.loadQueue.length > 0 && this.webStructure.loadQueue[0][0] <= targetWidget){
             const [index,widget] = this.webStructure.loadQueue.shift()
+            print(`debug : ${targetWidget}-${index}`)
             widget.show()
         }
     }
@@ -660,7 +837,8 @@ class ActionListener {
 
 if (!isLoadOrigin) {
     var config = new Config(document.getElementById('exReader'))
-    var webStructure = new WebStructure(config)
+    var galleryInformation = new GalleryInformation()
+    var webStructure = new WebStructure(config,galleryInformation)
 
     if (config.isOpenBlank && /(ex|e-)hentai.org\/($|tag|\?)/.test(document.location.href)) {
         webStructure.blankHyperlink()
@@ -670,11 +848,14 @@ if (!isLoadOrigin) {
     }
 
     if (webStructure.isGallery) {
-        var galleryInformation = new GalleryInformation()
+        webStructure.scollToTop()
+        webStructure.loadStyleFile()
+
         var imageParser = new ImageParser(galleryInformation)
         webStructure.initImageStructure(imageParser)
         var actionListener = new ActionListener(config,webStructure)
         actionListener.listenScroll()
+        actionListener.listenTouch()
 
     }
 
