@@ -538,9 +538,6 @@ class WebStructure {
         this.imageWidgets = []
         this.galleryPages = []
         this.resetFontSize(config)
-        if (config.isMobileRebuild) {
-            this.rebuildMobileStructure(config, galleryInformation)
-        }
 
     }
 
@@ -569,6 +566,9 @@ class WebStructure {
     }
 
     rebuildMobileStructure(config, galleryInformation) {
+        if(!config.isMobileRebuild){
+            return
+        }
         const titleBar = document.getElementsByClassName('gm')[0]
         const titleInfoCover = document.createElement('div')
         const titleInfoDetail = document.createElement('div')
@@ -1080,6 +1080,7 @@ if (!isLoadOrigin) {
     if (webStructure.isGallery) {
         webStructure.scollToTop()
         webStructure.loadStyleFile()
+        webStructure.rebuildMobileStructure()
         webStructure.initMenuStructure()
 
         var imageParser = new ImageParser(galleryInformation)
