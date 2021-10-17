@@ -1,0 +1,52 @@
+html,body{
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    height: 100%;
+    position: relative;
+}
+.reader-menu{
+    position: fixed;
+    width: 100%;
+    background-color: #363940;
+}
+.transform-anime{
+    /*transition: transform 200ms ease-out;*/
+    transition: transform 200ms cubic-bezier(0.18, 0.76, 0.18, 0.8);
+}
+
+#top-menu{
+    height: 150px;
+    top: 0px;
+}
+#bottom-menu{
+    height: 150px;
+    bottom: 0px;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 99;
+}
+.top-hidden{
+    transform: translateY(-100%);
+}
+.bottom-hidden{
+    transform: translateY(100%);
+}
+.reader-menu .iconfont{
+    font-size: 70px;
+}
+body #cdiv{
+    width: 100%;
+    max-width: 100%;
+    position: fixed;
+    height: 50%;
+    bottom: 0px;
+    margin: 0px;
+    overflow-y: scroll;
+    z-index: 100;
+}
+.zoom3{
+    transform: scale(3);
+}

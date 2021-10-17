@@ -56,7 +56,7 @@ var isLoadOrigin = (window.location.href.indexOf('originalReader=') > -1)
 if (isLoadOrigin) {
     const href = window.location.href.split('&')
     const orginTimestamp = parseInt(href[0].split('=')[1])
-    if (parseInt(Date.parse(new Date()) / 1000) - orginTimestamp > 5) {
+    if (parseInt(Date.parse(new Date()) / 1000) - orginTimestamp > 2) {
         isLoadOrigin = false
     } else {
         isLoadOrigin = true
@@ -459,6 +459,23 @@ class ImageWidget {
         this.img.style.display = 'none'
     }
 }
+class StyleMonitor{
+    constructor(dom,style,prefix = '',  suffix = '') {
+        this._dom = dom
+        this._styleName = style
+        this._prefix = prefix
+        this._suffix = suffix
+    }
+    set style(value){
+        this._dom.style[this._styleName] = `${this._prefix}${value}${this._suffix}`
+    }
+    get style(){
+        return this._dom.style[this._styleName]
+    }
+}
+
+
+
 
 class WebStructure {
     constructor(config,galleryInformation) {
@@ -615,6 +632,88 @@ class WebStructure {
             }
         }
     }
+
+    initMenuStructure(){
+        this.isShowMenu = false
+        const topMenu = document.createElement('div')
+        const bottomMenu = document.createElement('div')
+
+        topMenu.setAttribute('class','reader-menu top-hidden')
+        topMenu.setAttribute('id','top-menu')
+        bottomMenu.setAttribute('class','reader-menu bottom-hidden')
+        bottomMenu.setAttribute('id','bottom-menu')
+
+        this._topMenu = topMenu
+        this._bottomMenu = bottomMenu
+        // document.body.appendChild(topMenu)
+        document.body.appendChild(bottomMenu)
+
+        document.body.onscroll = (e) => {
+            if(this.isShowMenu){
+                this.hideMenu()
+            }
+            if(this.isShowComments){
+                this.hideComments()
+            }
+        }
+
+        const iconSettings = document.createElement('i')
+        iconSettings.setAttribute('class','iconfont icon-settings')
+        const iconOriginal = document.createElement('i')
+        iconOriginal.setAttribute('class','iconfont icon-original')
+        iconOriginal.onclick = () => {
+            window.location.href = window.location.origin+window.location.pathname+ '?originalReader='+ parseInt(Date.parse(new Date()) / 1000)
+        }
+        const iconComments = document.createElement('i')
+        iconComments.setAttribute('class','iconfont icon-comments')
+        iconComments.onclick = () => {
+            this.hideMenu()
+            this.showComments()
+        }
+        this.isShowComments = false
+        this._comments = document.getElementById('cdiv')
+        this._comments.classList.add('bottom-hidden')
+        const iconRefresh = document.createElement('i')
+        iconRefresh.setAttribute('class','iconfont icon-refresh')
+        iconRefresh.onclick = () => {
+            this.forceRefresh()
+        }
+        bottomMenu.appendChild(iconSettings)
+        bottomMenu.appendChild(iconOriginal)
+        bottomMenu.appendChild(iconComments)
+        bottomMenu.appendChild(iconRefresh)
+    }
+    showMenu(){
+        function _showMenu(){
+            this._topMenu.classList.remove('top-hidden')
+            this._bottomMenu.classList.remove('bottom-hidden')
+            this.isShowMenu = true
+        }
+        this._topMenu.classList.add('transform-anime')
+        this._bottomMenu.classList.add('transform-anime')
+        _showMenu.call(this)
+        this.showMenu = _showMenu
+    }
+    hideMenu(){
+        this._topMenu.classList.add('top-hidden')
+        this._bottomMenu.classList.add('bottom-hidden')
+        this.isShowMenu = false
+    }
+    showComments(){
+        function _showComments(){
+            this._comments.classList.remove('bottom-hidden')
+            this.isShowComments = true
+        }
+        this._comments.classList.add('transform-anime')
+        _showComments.call(this)
+        this.showComments = _showComments
+    }
+    hideComments(){
+        if(this._comments){
+            this._comments.classList.add('bottom-hidden')
+            this.isShowComments = false
+        }
+    }
     initImageStructure(imageParser) {
         print('initImageStructure')
         const imageNum = imageParser.imageNum
@@ -667,18 +766,14 @@ class WebStructure {
         var readerStyle = document.createElement('link');
         readerStyle.rel = 'stylesheet';
         readerStyle.type = 'text/css';
-        readerStyle.href = this.config.scriptUrl + 'reader.css?' + parseInt(Date.parse(new Date()) / 1000);
+        readerStyle.href = this.config.scriptUrl + 'Reader_V2.css?' + parseInt(Date.parse(new Date()) / 1000);
         document.body.appendChild(readerStyle);
         const iconStyle1 = document.createElement('link');
         iconStyle1.rel = 'stylesheet';
         iconStyle1.type = 'text/css';
-        iconStyle1.href = 'https://at.alicdn.com/t/font_1345377_wn98j672mcn.css';
+        iconStyle1.href = '//at.alicdn.com/t/font_2872755_lbcgjof8f0e.css';
         document.body.appendChild(iconStyle1);
-        const iconStyle2 = document.createElement('link');
-        iconStyle2.rel = 'stylesheet';
-        iconStyle2.type = 'text/css';
-        iconStyle2.href = '//at.alicdn.com/t/font_2044102_jyw69l1l0pj.css';
-        document.body.appendChild(iconStyle2);
+
     }
 
     resetFontSize(config) {
@@ -787,18 +882,62 @@ class ActionListener {
         this.webStructure = webStructure
         this.isTouch = false
     }
+    get timestamp(){
+        return new Date().getTime()
+    }
+    touchEvent(times){
+        print(`touch times: ${times}`)
+        if(times === 1){
+            if(!this.webStructure.isShowMenu){
+                this.webStructure.showMenu()
+            }else {
+                this.webStructure.hideMenu()
+            }
+            if(this.webStructure.isShowComments){
+                this.webStructure.hideComments()
+            }
+        }
+        // if(times === 3){
+        //     if(document.documentElement.classList.contains('zoom3')){
+        //         document.documentElement.classList.remove('zoom3')
+        //         // document.documentElement.scrollTop /= 3
+        //     }else {
+        //         document.documentElement.classList.add('zoom3')
+        //         // document.documentElement.scrollTop *= 3
+        //     }
+        // }
+
+
+        this.touchTimes = 0
+    }
     listenTouch(){
-        document.documentElement.ontouchstart = (e) => {
+
+        this.touchTimes = 0
+        this.touchEventId = 0
+        const launchTouchEvent = (e) =>{
+            clearTimeout(this.touchEventId)
+            this.touchTimes ++
+            this.touchEventId = setTimeout(()=>{
+                this.touchEvent(this.touchTimes)
+            },300)
+        }
+        const cancelTouch = () => {
+            clearTimeout(this.touchEventId)
+            this.touchTimes = 0
+        }
+        const imageArea = document.getElementById('gdt')
+        imageArea.ontouchstart = (e) => {
             this.isTouch = true
         }
-        document.documentElement.ontouchmove = () => {
+        imageArea.ontouchmove = (e) => {
             this.isTouch = false
+            cancelTouch()
         }
-        document.documentElement.ontouchend = () =>{
+        imageArea.ontouchend = (e) =>{
             if(this.isTouch){
-                console.log('touch menu')
+                launchTouchEvent()
             }else {
-                console.log('move')
+                // cancelTouch(e)
             }
             window.this = false
         }
@@ -816,7 +955,6 @@ class ActionListener {
     lazyLoad(targetWidget){
         while(this.webStructure.loadQueue.length > 0 && this.webStructure.loadQueue[0][0] <= targetWidget){
             const [index,widget] = this.webStructure.loadQueue.shift()
-            print(`debug : ${targetWidget}-${index}`)
             widget.show()
         }
     }
@@ -850,9 +988,11 @@ if (!isLoadOrigin) {
     if (webStructure.isGallery) {
         webStructure.scollToTop()
         webStructure.loadStyleFile()
+        webStructure.initMenuStructure()
 
         var imageParser = new ImageParser(galleryInformation)
         webStructure.initImageStructure(imageParser)
+
         var actionListener = new ActionListener(config,webStructure)
         actionListener.listenScroll()
         actionListener.listenTouch()
