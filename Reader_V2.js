@@ -1,5 +1,5 @@
-function print(...e) {
-    console.log('@exReader:', ...e)
+function print(...e){
+    console.log('@exReader:',...e)
 }
 
 function getOffsetTopByBody(el) {
@@ -150,7 +150,6 @@ class ImageMeta {
             }
         }
     }
-
     isGetPage() {
         return !!this.imagePageUrl
     }
@@ -158,25 +157,23 @@ class ImageMeta {
     isGetUrl() {
         return !!this.url
     }
-
-    loadIntoWidget() {
-        if (this.state > 3) {
+    loadIntoWidget(){
+        if(this.state > 3){
             this.imageWidget.updateImageDOM()
-        } else {
-            if (this.state > 1) {
+        }else{
+            if(this.state > 1){
                 this.callImageUrl()
-            } else {
+            }
+            else{
                 this.callPageUrl()
             }
         }
     }
-
-    callPageUrl() {
+    callPageUrl(){
         this.state = 1
         this.galleryPage.callPageUrl(this.imageWidget)
     }
-
-    callImageUrl() {
+    callImageUrl(){
         this.state = 3
         GET.call(this, this.imagePageUrl, function (d) {
             var imgUrl = d.match(/<img id=\"img\" src=\"(.+?)\"/i)[1]
@@ -191,8 +188,7 @@ class ImageMeta {
     get isLoaded() {
         return !!this.url
     }
-
-    get isShow() {
+    get isShow(){
 
     }
 }
@@ -201,7 +197,7 @@ class GalleryPage {
     constructor(index, size, pageUrl, timeout = 5000) {
         const images = []
         for (let i = 0; i < size; i++) {
-            images.push(new ImageMeta(this, index * size + i))
+            images.push(new ImageMeta(this,index*size+i))
         }
         this.index = index
         this.images = images
@@ -232,21 +228,19 @@ class GalleryPage {
         this.isLoaded = true
         print('get image page from dom finish: page', this.index, this)
     }
-
-    clearCallStack() {
-        while (this.callStack.length > 0) {
+    clearCallStack(){
+        while(this.callStack.length > 0){
             const imageWidget = this.callStack.shift()
             imageWidget.updateArea()
             imageWidget.imgInfo.callImageUrl()
         }
     }
-
-    callPageUrl(imageWidget) {
-        if (this.callState > 1) {
+    callPageUrl(imageWidget){
+        if(this.callState > 1){
             imageWidget.imgInfo.callImageUrl()
             return
         }
-        if (this.callState == 1) {
+        if(this.callState == 1){
             this.callStack.push(imageWidget)
             return
         }
@@ -310,7 +304,6 @@ class Config {
         const fontSize = eval(scriptDOM.getAttribute('fontsize')) || 9
         const tagFontSize = eval(scriptDOM.getAttribute('tag-fontsize')) || 9
         const lazyLoadingSize = eval(scriptDOM.getAttribute('lazy-loadingsize')) || 5
-        const infiniteLoading = true
 
         this.fontSize = fontSize
         this.tagFontSize = tagFontSize
@@ -319,14 +312,13 @@ class Config {
         this.isMobileRebuild = isrebuild == 'true' ? true : false
         this.isOpenBlank = isOpenBlank == 'true' ? true : false
         this.scriptUrl = !!scriptUrl ? scriptUrl.match(/(http.*?\/)Reader.*\.js/)[1] : 'http://localhost:63342/ExHentaiReader'
-        this.infiniteLoading = infiniteLoading
         print('@exReader:', this)
     }
 }
 
 class ImageWidget {
-    constructor(webStructure, pageInfo, imgInfo, index, parent, containerWidth) {
-        if (index !== imgInfo.index) {
+    constructor(webStructure,pageInfo,imgInfo, index, parent, containerWidth) {
+        if(index !== imgInfo.index){
             throw new Error(`ImageWidget index:${index} do not match ImageMeta index:${imgInfo.index} `)
         }
         const blankImageUrl = '//exhentai.org/img/blank.gif'
@@ -346,15 +338,14 @@ class ImageWidget {
         img.setAttribute('style', `display:none;width:${width}px;height:${height}px;border:0px;`)
         img.setAttribute('class', 'reader-img')
         img.setAttribute('src', blankImageUrl)
-        img.onerror = () => {
-            this.state++
-            if (this.state == 6) {
+        img.onerror = () =>{
+            this.state ++
+            if(this.state == 6){
                 this.imgInfo.imagePageUrl += '?nl=' + this.imgInfo.nl
                 this.imgInfo.url = ''
                 this.imgInfo.nl = ''
             }
-            if (this.state >= 7) {
-                this.webStructure.removeLoading(this.index)
+            if(this.state < 7){
                 return
             }
 
@@ -362,25 +353,24 @@ class ImageWidget {
             this.imgInfo.loadIntoWidget()
         }
         img.onload = () => {
-            if (this.img.src.indexOf(this.blankImageUrl) < 0) {
+            if(this.img.src.indexOf(this.blankImageUrl) < 0){
                 this.state = -1
                 this.imgInfo.width = this.img.naturalWidth
                 this.imgInfo.height = this.img.naturalHeight
                 this.updateArea()
-                this.webStructure.removeLoading(this.index)
             }
         }
         imgInfo.stateProxy = (value) => {
-            print(`stateProxy: index:${this.index} state:${this.state}`)
-            if (this.isShow) {
-                if (this.state >= 1 && this.state < 6) {
+            console.log(`stateProxy: index:${this.index} state:${this.state}`)
+            if(this.isShow){
+                if(this.state >= 1 && this.state < 6){
                     this.loadingBoxShow('Loading ...')
                 }
-                if (this.state === 6) {
+                if(this.state === 6){
                     this.loadingBoxShow('Loading from the original ...')
                 }
             }
-            if (this.state === -1) {
+            if(this.state === -1){
                 this.loadingBoxHiden()
             }
         }
@@ -401,70 +391,56 @@ class ImageWidget {
 
     }
 
-    get state() {
+    get state(){
         return this.imgInfo.state
     }
-
-    set state(value) {
+    set state(value){
         this.imgInfo.state = value
     }
-
-    get index() {
+    get index(){
         return this.imgInfo.index
     }
-
     get isLoaded() {
         return this.state === -1
     }
-
-    get isLoading() {
+    get isLoading(){
         return this.state == 5 || this.state == 6
     }
-
-    get isLoadStart() {
-        return this.isLoading || this.isLoaded
+    get isLoadStart(){
+        return this.isLoading  || this.isLoaded
     }
-
-    get index() {
+    get index(){
         return this.imgInfo.index
     }
-
     get isLoaded() {
         return this.state === -1
     }
-
-    get isLoading() {
+    get isLoading(){
         return this.state == 5 || this.state == 6
     }
-
-    get isLoadStart() {
-        return this.isLoading || this.isLoaded
+    get isLoadStart(){
+        return this.isLoading  || this.isLoaded
     }
-
-    loadingBoxShow(message) {
-        if (message !== this.loadingBox.innerText) {
+    loadingBoxShow(message){
+        if(message !== this.loadingBox.innerText){
             this.loadingBox.innerText = message
         }
         this.loadingBox.style.display = 'block'
     }
-
-    loadingBoxHiden() {
+    loadingBoxHiden(){
         this.loadingBox.style.display = 'none'
     }
-
-    updateImageDOM() {
-        if (this.img.src !== this.imgInfo.url) {
-            this.state++
+    updateImageDOM(){
+        if(this.img.src !== this.imgInfo.url){
+            this.state ++
             this.img.src = this.imgInfo.url
             this.blankImageUrl
         }
     }
-
-    callPosRefresh() {
+    callPosRefresh(){
         this.webStructure.updatePosAfter(this.index)
     }
-
-    updateArea() {
+    updateArea(){
         const display = this.img.style.display
         this.img.style.display = 'none'
         const containerWidth = this.imgInfo.containerWidth
@@ -475,18 +451,14 @@ class ImageWidget {
         this.img.style.display = display
         this.callPosRefresh()
     }
-
-    updatePos() {
+    updatePos(){
         const pos = getOffsetTopByBody(this.img)
         this.pos = pos || -1
     }
-
-    get isShow() {
+    get isShow(){
         return this.img.style.display != 'none'
     }
-
     show() {
-        this.webStructure.addLoading(this.index)
         this.img.style.display = 'block'
         this.updatePos()
         this.imgInfo.loadIntoWidget()
@@ -496,61 +468,40 @@ class ImageWidget {
         this.img.style.display = 'none'
     }
 }
-
-class StyleMonitor {
-    constructor(selector) {
-        this._selector = selector
-        this._styleDom = document.createElement('style')
-        this._styles = {}
-        document.head.appendChild(this._styleDom)
-
+class StyleMonitor{
+    constructor(dom,style,prefix = '',  suffix = '') {
+        this._dom = dom
+        this._styleName = style
+        this._prefix = prefix
+        this._suffix = suffix
     }
-
-    setStyle(key, value, suffix = '') {
-        if (key instanceof Array && value instanceof Array) {
-            if (key.length !== value.length) {
-                throw Error('keys and values do not match')
-            } else {
-                for (let i = 0; i < key.length; i++) {
-                    this._styles[key[i]] = `${value[i]}${suffix}`
-                }
-            }
-        } else {
-            this._styles[key] = `${value}${suffix}`
-        }
+    set style(value){
+        this._dom.style[this._styleName] = `${this._prefix}${value}${this._suffix}`
     }
-
-    refresh() {
-        let style = ''
-        for (let key in this._styles) {
-            style += `${key}:${this._styles[key]};`
-        }
-        this._styleDom.innerHTML = `${this._selector}{${style}}`
+    get style(){
+        return this._dom.style[this._styleName]
     }
 }
 
 
+
+
 class WebStructure {
-    constructor(config, galleryInformation) {
+    constructor(config,galleryInformation) {
         this.config = config
         this.loadQueue = []
-        this.loadingQuery = new Set()
         this.imageWidgets = []
         this.galleryPages = []
         this.resetFontSize(config)
-        if (config.isMobileRebuild) {
-            this.rebuildMobileStructure(config, galleryInformation)
-        }
 
     }
 
     get isGallery() {
         return /\/exhentai\.org\/g\//.test(window.location.href)
     }
-
-    get isWaitingForLoad() {
+    get isWaitingForLoad(){
         let count = 0
-        for (let page of this.galleryPages) {
+        for(let page of this.galleryPages){
             count += page.callStack.length
         }
         return count > 0
@@ -577,7 +528,7 @@ class WebStructure {
 
         const cover = document.createElement('img')
         const coverMask = document.createElement('div')
-        const coverratio = 1 / 3
+        const coverratio = 1/3
         const title = document.getElementById('gn')
         const subTitle = document.getElementById('gj')
         const artInfo = document.getElementById('gd3')
@@ -612,44 +563,44 @@ class WebStructure {
         titleBar.style = 'max-width:100%;width:100%;display:flex;flex-flow: column nowrap;justify-content: start;align-items: center;overflow: hidden;'
         titleInfo.style = 'width:100%;display: flex;flex-flow: column nowrap;justify-content: start;align-items: center;'
         titleTag.style = 'width:100%;'
-        titleInfoCover.style = `max-height:${document.body.clientWidth * coverratio}px;`
+        titleInfoCover.style = `max-height:${document.body.clientWidth*coverratio}px;`
         titleInfoDetail.style = 'padding:10px 0px 10px 0px;width:100%;'
-        horizontalLine.style = 'width:98%;height:1px;background-color:black;border:0px;'
-        tag.style = 'width:100%;border:0px;margin:5px 0px 5px 0px;'
-        tagAction.style = 'width:100%;height:auto;margin:10px 0px 0px 0px;'
-        tagAction.style.fontSize = config.fontSize.toString() + 'pt'
+        horizontalLine.style='width:98%;height:1px;background-color:black;border:0px;'
+        tag.style='width:100%;border:0px;margin:5px 0px 5px 0px;'
+        tagAction.style='width:100%;height:auto;margin:10px 0px 0px 0px;'
+        tagAction.style.fontSize = config.fontSize.toString()+'pt'
         tagNew.style = 'width:100%;'
 
-        if (document.getElementsByClassName('gpc')[0]) {
+        if(document.getElementsByClassName('gpc')[0]){
             document.getElementsByClassName('gpc')[0].style.display = 'none'
         }
-        if (document.getElementById('gdo')) {
+        if(document.getElementById('gdo')){
             document.getElementById('gdo').style.display = 'none'
         }
 
         cover.src = galleryInformation.cover
 
-        for (let i = 0; i < tagNew.getElementsByTagName('input').length; i++) {
+        for(let i = 0;i < tagNew.getElementsByTagName('input').length;i++){
             tagNew.getElementsByTagName('input')[i].style.fontSize
         }
 
-        for (let i = 0; i < artInfo.childNodes.length; i++) {
+        for (let i =0;i<artInfo.childNodes.length;i++) {
             artInfo.childNodes[i].style.fontSize = config.fontSize.toString() + 'pt'
         }
 
         const infoClass = artInfo.childNodes[0]
         infoClass.appendChild(artInfo.childNodes[1].childNodes[0])
 
-        infoClass.style.display = 'flex'
-        infoClass.style.flexFlow = 'row nowrap'
-        infoClass.childNodes[0].style.height = 'auto'
-        infoClass.childNodes[0].style.width = 'auto'
-        infoClass.childNodes[0].style.padding = '10px 20px 10px 20px'
-        infoClass.childNodes[0].style.margin = '0px 10% 0px 0px'
+        infoClass.style.display='flex'
+        infoClass.style.flexFlow='row nowrap'
+        infoClass.childNodes[0].style.height='auto'
+        infoClass.childNodes[0].style.width='auto'
+        infoClass.childNodes[0].style.padding='10px 20px 10px 20px'
+        infoClass.childNodes[0].style.margin='0px 10% 0px 0px'
         infoClass.childNodes[0].style.fontSize = config.fontSize.toString() + 'pt'
         artInfo.childNodes[3].getElementsByTagName('tr')[1].childNodes[0].style = 'padding:0px;text-align:left;'
         artInfo.childNodes[4].style.paddingLeft = '0px'
-        document.getElementById('favoritelink').style.whiteSpace = 'nowrap'
+        document.getElementById('favoritelink').style.whiteSpace='nowrap'
 
         title.onclick = function () {
             this.style.whiteSpace = 'normal'
@@ -660,15 +611,15 @@ class WebStructure {
         }
 
         const infoTable = document.getElementById('gdd')
-        if (infoTable) {
+        if(infoTable){
             const tableBody = infoTable.getElementsByTagName('tbody')[0]
             const _rows = tableBody.getElementsByTagName('tr')
             const rows = []
-            for (let row of _rows) {
+            for(let row of _rows){
                 rows.push(row)
             }
 
-            while (rows.length > 0) {
+            while(rows.length > 0){
                 const line = document.createElement('div')
                 let box = document.createElement('div')
                 line.className = 'reader-info-detail-row'
@@ -678,7 +629,7 @@ class WebStructure {
                 box.appendChild(row)
                 line.appendChild(box)
 
-                if (rows.length > 0) {
+                if(rows.length > 0){
                     box = document.createElement('div')
                     box.className = 'reader-info-detail-col'
                     row = rows.shift()
@@ -690,28 +641,26 @@ class WebStructure {
             }
         }
     }
-
-    scollToTop() {
+    scollToTop(){
         document.body.scrollTop = document.documentElement.scrollTop = 0
     }
-
-    forceRefresh() {
-        for (let imageWidget of this.imageWidgets) {
-            if (!imageWidget.isLoaded) {
+    forceRefresh(){
+        for(let imageWidget of this.imageWidgets){
+            if(!imageWidget.isLoaded){
                 imageWidget.img.src = imageWidget.img.src
             }
         }
     }
 
-    initMenuStructure() {
+    initMenuStructure(){
         this.isShowMenu = false
         const topMenu = document.createElement('div')
         const bottomMenu = document.createElement('div')
 
-        topMenu.setAttribute('class', 'reader-menu top-hidden')
-        topMenu.setAttribute('id', 'top-menu')
-        bottomMenu.setAttribute('class', 'reader-menu bottom-hidden')
-        bottomMenu.setAttribute('id', 'bottom-menu')
+        topMenu.setAttribute('class','reader-menu top-hidden')
+        topMenu.setAttribute('id','top-menu')
+        bottomMenu.setAttribute('class','reader-menu bottom-hidden')
+        bottomMenu.setAttribute('id','bottom-menu')
 
         this._topMenu = topMenu
         this._bottomMenu = bottomMenu
@@ -719,23 +668,23 @@ class WebStructure {
         document.body.appendChild(bottomMenu)
 
         document.body.onscroll = (e) => {
-            if (this.isShowMenu) {
+            if(this.isShowMenu){
                 this.hideMenu()
             }
-            if (this.isShowComments) {
+            if(this.isShowComments){
                 this.hideComments()
             }
         }
 
         const iconSettings = document.createElement('i')
-        iconSettings.setAttribute('class', 'iconfont icon-settings')
+        iconSettings.setAttribute('class','iconfont icon-settings')
         const iconOriginal = document.createElement('i')
-        iconOriginal.setAttribute('class', 'iconfont icon-original')
+        iconOriginal.setAttribute('class','iconfont icon-original')
         iconOriginal.onclick = () => {
-            window.location.href = window.location.origin + window.location.pathname + '?originalReader=' + parseInt(Date.parse(new Date()) / 1000)
+            window.location.href = window.location.origin+window.location.pathname+ '?originalReader='+ parseInt(Date.parse(new Date()) / 1000)
         }
         const iconComments = document.createElement('i')
-        iconComments.setAttribute('class', 'iconfont icon-comments')
+        iconComments.setAttribute('class','iconfont icon-comments')
         iconComments.onclick = () => {
             this.hideMenu()
             this.showComments()
@@ -744,7 +693,7 @@ class WebStructure {
         this._comments = document.getElementById('cdiv')
         this._comments.classList.add('bottom-hidden')
         const iconRefresh = document.createElement('i')
-        iconRefresh.setAttribute('class', 'iconfont icon-refresh')
+        iconRefresh.setAttribute('class','iconfont icon-refresh')
         iconRefresh.onclick = () => {
             this.forceRefresh()
         }
@@ -753,44 +702,37 @@ class WebStructure {
         bottomMenu.appendChild(iconComments)
         bottomMenu.appendChild(iconRefresh)
     }
-
-    showMenu() {
-        function _showMenu() {
+    showMenu(){
+        function _showMenu(){
             this._topMenu.classList.remove('top-hidden')
             this._bottomMenu.classList.remove('bottom-hidden')
             this.isShowMenu = true
         }
-
         this._topMenu.classList.add('transform-anime')
         this._bottomMenu.classList.add('transform-anime')
         _showMenu.call(this)
         this.showMenu = _showMenu
     }
-
-    hideMenu() {
+    hideMenu(){
         this._topMenu.classList.add('top-hidden')
         this._bottomMenu.classList.add('bottom-hidden')
         this.isShowMenu = false
     }
-
-    showComments() {
-        function _showComments() {
+    showComments(){
+        function _showComments(){
             this._comments.classList.remove('bottom-hidden')
             this.isShowComments = true
         }
-
         this._comments.classList.add('transform-anime')
         _showComments.call(this)
         this.showComments = _showComments
     }
-
-    hideComments() {
-        if (this._comments) {
+    hideComments(){
+        if(this._comments){
             this._comments.classList.add('bottom-hidden')
             this.isShowComments = false
         }
     }
-
     initImageStructure(imageParser) {
         print('initImageStructure')
         const imageNum = imageParser.imageNum
@@ -812,9 +754,9 @@ class WebStructure {
         for (let i = 0; i < imageNum; i++) {
             const numOfPage = Math.floor(i / imageParser.imgPerPage)
             const index = i % imageParser.imgPerPage
-            const imgwidget = new ImageWidget(this, imageParser.galleryPages[numOfPage], imageParser.galleryPages[numOfPage].images[index], i, readerContainer, containerWidth)
+            const imgwidget = new ImageWidget(this,imageParser.galleryPages[numOfPage],imageParser.galleryPages[numOfPage].images[index], i, readerContainer, containerWidth)
             imageWidgets.push(imgwidget)
-            loadQueue.push([i, imgwidget])
+            loadQueue.push([i,imgwidget])
         }
         this.imageWidgets = imageWidgets
         this.loadQueue = loadQueue
@@ -822,10 +764,9 @@ class WebStructure {
         container.parentElement.insertBefore(readerContainer, container)
         container.parentElement.removeChild(container)
     }
-
-    updatePosAfter(index) {
-        for (let i = index; i < this.imageWidgets.length; i++) {
-            if (this.imageWidgets[i].img.style.display == 'none') {
+    updatePosAfter(index){
+        for(let i = index;i<this.imageWidgets.length;i++){
+            if(this.imageWidgets[i].img.style.display == 'none'){
                 return
             }
             this.imageWidgets[i].updatePos()
@@ -833,15 +774,13 @@ class WebStructure {
 
 
     }
-
-    showImage(index) {
-        if (index < this.imageWidgets.length) {
+    showImage(index){
+        if(index < this.imageWidgets.length){
             this.imageWidgets[index].show()
-        } else {
+        }else {
             print('@exReader')
         }
     }
-
     loadStyleFile() {
         var readerStyle = document.createElement('link');
         readerStyle.rel = 'stylesheet';
@@ -858,40 +797,28 @@ class WebStructure {
 
     resetFontSize(config) {
         print('mobileRebuild')
-
-        const tagStyle = new StyleMonitor('.gtw,.gt,.gtl,.gt,.tag')
-        tagStyle.setStyle('font-size', config.tagFontSize, 'pt')
-        tagStyle.refresh()
-
-        const fontStyle = new StyleMonitor('h1#gn,h1#gj,loading-box,.tc')
-        fontStyle.setStyle('font-size', config.fontSize, 'pt')
-        fontStyle.refresh()
-
-        const newTagStyle = new StyleMonitor('input#newtagfield,input#newtagbutton')
-        newTagStyle.setStyle('font-size',config.fontSize)
-        newTagStyle.refresh()
-
-        const style = document.createElement('style')
+        let style = document.createElement('style')
         let styleText = ''
+        styleText = '.gtw,.gt,.gtl,.gt,.tag{font-size: ' + config.tagFontSize.toString() + 'pt;}'
+        styleText += '.tc{font-size: ' + config.tagFontSize.toString() + 'pt;}'
+        styleText += 'h1#gn,h1#gj{font-size: ' + config.fontSize.toString() + 'pt;}'
         styleText += '#gn,#gj{text-overflow: ellipsis;white-space: nowrap;overflow: hidden;cursor:pointer;}'
-        styleText += 'input#newtagfield,input#newtagbutton{line-height:normal;}'
+        styleText += `.loading-box{font-size:${config.fontSize}px;}`
+        styleText += 'input#newtagfield,input#newtagbutton{font-size:' + config.fontSize.toString() + 'pt;line-height:normal;}'
         styleText += 'input#newtagfield{width:70%;}'
         styleText += 'input#newtagbutton{width:auto;}'
         style.innerHTML = styleText
         document.head.appendChild(style)
     }
-
-    getLoadStates() {
+    getLoadStates(){
         const states = []
-        for (let imageWidget of this.imageWidgets) {
+        for(let imageWidget of this.imageWidgets){
             states.push(imageWidget.isLoaded)
         }
         return states
     }
-
     translate() {
         window.selectedTag = null
-
         function translateTag(tagDict) {
             let tagBox = document.getElementsByClassName('gtl')
             for (var i = 0; i < tagBox.length; i++) {
@@ -969,42 +896,49 @@ class WebStructure {
 }
 
 class ActionListener {
-    constructor(config, webStructure) {
+    constructor(config,webStructure) {
         this.lazyLoadingSize = config.lazyLoadingSize
         this.webStructure = webStructure
         this.isTouch = false
-        this.config = config
     }
-
-    get timestamp() {
+    get timestamp(){
         return new Date().getTime()
     }
-
-    touchEvent(times) {
+    touchEvent(times){
         print(`touch times: ${times}`)
-        if (times === 1) {
-            if (!this.webStructure.isShowMenu) {
+        if(times === 1){
+            if(!this.webStructure.isShowMenu){
                 this.webStructure.showMenu()
-            } else {
+            }else {
                 this.webStructure.hideMenu()
             }
-            if (this.webStructure.isShowComments) {
+            if(this.webStructure.isShowComments){
                 this.webStructure.hideComments()
             }
         }
+        // if(times === 3){
+        //     if(document.documentElement.classList.contains('zoom3')){
+        //         document.documentElement.classList.remove('zoom3')
+        //         // document.documentElement.scrollTop /= 3
+        //     }else {
+        //         document.documentElement.classList.add('zoom3')
+        //         // document.documentElement.scrollTop *= 3
+        //     }
+        // }
+
+
         this.touchTimes = 0
     }
-
-    listenTouch() {
+    listenTouch(){
 
         this.touchTimes = 0
         this.touchEventId = 0
-        const launchTouchEvent = (e) => {
+        const launchTouchEvent = (e) =>{
             clearTimeout(this.touchEventId)
-            this.touchTimes++
-            this.touchEventId = setTimeout(() => {
+            this.touchTimes ++
+            this.touchEventId = setTimeout(()=>{
                 this.touchEvent(this.touchTimes)
-            }, 300)
+            },300)
         }
         const cancelTouch = () => {
             clearTimeout(this.touchEventId)
@@ -1018,46 +952,39 @@ class ActionListener {
             this.isTouch = false
             cancelTouch()
         }
-        imageArea.ontouchend = (e) => {
-            if (this.isTouch) {
+        imageArea.ontouchend = (e) =>{
+            if(this.isTouch){
                 launchTouchEvent()
-            } else {
+            }else {
                 // cancelTouch(e)
             }
             window.this = false
         }
 
     }
-
-    listenScroll() {
+    listenScroll(){
         const seenCurrentImageWidget = this.getFocus()
         const targetWidget = seenCurrentImageWidget + this.lazyLoadingSize
-        if (this.webStructure.loadQueue.length > 0 && this.webStructure.loadQueue[0][0] <= targetWidget) {
+        if(this.webStructure.loadQueue.length > 0 && this.webStructure.loadQueue[0][0] <= targetWidget){
             this.lazyLoad(targetWidget)
-        }
-        if (this.config.infiniteLoading && !this.webStructure.hasLoadingImage && this.webStructure.loadQueue.length > 0) {
-            print('infinite Loading:')
-            const [index, widget] = this.webStructure.loadQueue.shift()
-            widget.show()
         }
         requestAnimationFrame(this.listenScroll.bind(this))
     }
 
-    lazyLoad(targetWidget) {
-        while (this.webStructure.loadQueue.length > 0 && this.webStructure.loadQueue[0][0] <= targetWidget) {
-            const [index, widget] = this.webStructure.loadQueue.shift()
+    lazyLoad(targetWidget){
+        while(this.webStructure.loadQueue.length > 0 && this.webStructure.loadQueue[0][0] <= targetWidget){
+            const [index,widget] = this.webStructure.loadQueue.shift()
             widget.show()
         }
     }
-
-    getFocus() {
+    getFocus(){
         const currentTop = document.documentElement.scrollTop
         const currentBottom = currentTop + document.documentElement.clientHeight
         let index = -1
-        for (let imageWidget of this.webStructure.imageWidgets) {
-            if (imageWidget.pos < currentBottom && imageWidget.isLoadStart) {
+        for(let imageWidget of this.webStructure.imageWidgets){
+            if(imageWidget.pos < currentBottom && imageWidget.isLoadStart) {
                 index += 1
-            } else {
+            }else{
                 break;
             }
         }
@@ -1068,7 +995,7 @@ class ActionListener {
 if (!isLoadOrigin) {
     var config = new Config(document.getElementById('exReader'))
     var galleryInformation = new GalleryInformation()
-    var webStructure = new WebStructure(config, galleryInformation)
+    var webStructure = new WebStructure(config,galleryInformation)
 
     if (config.isOpenBlank && /(ex|e-)hentai.org\/($|tag|\?)/.test(document.location.href)) {
         webStructure.blankHyperlink()
@@ -1085,7 +1012,7 @@ if (!isLoadOrigin) {
         var imageParser = new ImageParser(galleryInformation)
         webStructure.initImageStructure(imageParser)
 
-        var actionListener = new ActionListener(config, webStructure)
+        var actionListener = new ActionListener(config,webStructure)
         actionListener.listenScroll()
         actionListener.listenTouch()
 
