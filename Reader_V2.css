@@ -5,6 +5,77 @@ html,body{
     height: 100%;
     position: relative;
 }
+
+body .gm{
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
+}
+.image-container {
+    position: relative;
+}
+
+.reader-img {
+    position: relative;
+}
+
+.reader-title-top-cover {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: start;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+.reader-title-top-detail #gd3{
+    padding: 10px 15px 3px 15px;
+}
+.reader-title-top-detail #gj{
+    padding-bottom: 10px;
+}
+.reader-title-top-cover>img{
+    top: 50%;
+    position: relative;
+    width: 100%;
+}
+.reader-title-top-cover>div{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    background-image: linear-gradient(to bottom, rgba(0,0,0,0),rgba(0,0,0,0) 60%,#4f535b);
+}
+.reader-title-top-detail #gd3{
+    width: 100%;
+}
+.reader-title-top-detail #gdd{
+    width: 100%;
+}
+.reader-title-top-detail #gdd table{
+    width: 100%;
+}
+.reader-title-top-detail #gdr{
+    margin: 0px;
+}
+.reader-title-top-detail #gdf{
+    padding-top: 0px;
+}
+.reader-info-detail-row{
+    display: flex;
+    flex-flow: row nowrap;
+    width: 100%;
+}
+.reader-info-detail-col{
+    width: 45%;
+}
+.loading-box {
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
 .reader-menu{
     position: fixed;
     width: 100%;
@@ -13,6 +84,7 @@ html,body{
 .transform-anime{
     /*transition: transform 200ms ease-out;*/
     transition: transform 200ms cubic-bezier(0.18, 0.76, 0.18, 0.8);
+    -webkit-transition: transform 200ms cubic-bezier(0.18, 0.76, 0.18, 0.8);
 }
 
 #top-menu{
