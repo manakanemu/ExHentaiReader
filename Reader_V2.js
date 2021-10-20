@@ -554,8 +554,11 @@ class WebStructure {
         return count > 0
     }
 
-    get hasLoadingImage() {
+    get hasLoadingImages() {
         return this.loadingQuery.size > 0
+    }
+    get numOfLoadingImages(){
+        return this.loadingQuery.size
     }
 
     addLoading(index) {
@@ -741,6 +744,7 @@ class WebStructure {
         this.isShowComments = false
         this._comments = document.getElementById('cdiv')
         this._comments.classList.add('bottom-hidden')
+
         const iconRefresh = document.createElement('i')
         iconRefresh.setAttribute('class', 'iconfont icon-refresh')
         iconRefresh.onclick = () => {
@@ -1034,14 +1038,18 @@ class ActionListener {
         if (this.webStructure.loadQueue.length > 0 && this.webStructure.loadQueue[0][0] <= targetWidget) {
             this.lazyLoad(targetWidget)
         }
-        if (this.config.infiniteLoading && !this.webStructure.hasLoadingImage && this.webStructure.loadQueue.length > 0) {
+        if (this.config.infiniteLoading && this.webStructure.numOfLoadingImages < this.lazyLoadingSize && this.webStructure.loadQueue.length > 0) {
+            this.infinitLoad(this.lazyLoadingSize - this.webStructure.numOfLoadingImages)
+        }
+        requestAnimationFrame(this.listenScroll.bind(this))
+    }
+    infinitLoad(nums){
+        for(let i=0;i<nums;i++){
             print('infinite Loading:')
             const [index, widget] = this.webStructure.loadQueue.shift()
             widget.show()
         }
-        requestAnimationFrame(this.listenScroll.bind(this))
     }
-
     lazyLoad(targetWidget) {
         while (this.webStructure.loadQueue.length > 0 && this.webStructure.loadQueue[0][0] <= targetWidget) {
             const [index, widget] = this.webStructure.loadQueue.shift()
@@ -1088,8 +1096,5 @@ if (!isLoadOrigin) {
         var actionListener = new ActionListener(config, webStructure)
         actionListener.listenScroll()
         actionListener.listenTouch()
-
     }
-
-
 }
