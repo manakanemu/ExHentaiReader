@@ -310,7 +310,7 @@ class Config {
         const fontSize = eval(scriptDOM.getAttribute('fontsize')) || 9
         const tagFontSize = eval(scriptDOM.getAttribute('tag-fontsize')) || 9
         const lazyLoadingSize = eval(scriptDOM.getAttribute('lazy-loadingsize')) || 5
-        const infiniteLoading = true
+        const infiniteLoading = false
 
         this.fontSize = fontSize
         this.tagFontSize = tagFontSize
@@ -557,7 +557,8 @@ class WebStructure {
     get hasLoadingImages() {
         return this.loadingQuery.size > 0
     }
-    get numOfLoadingImages(){
+
+    get numOfLoadingImages() {
         return this.loadingQuery.size
     }
 
@@ -570,15 +571,16 @@ class WebStructure {
     }
 
     rebuildMobileStructure(config, galleryInformation) {
-        const titleBar = document.getElementsByClassName('gm')[0]
+        const titleBox = document.getElementsByClassName('gm')[0]
+        const titleBackgroud = document.createElement('div')
         const titleInfoCover = document.createElement('div')
         const titleInfoDetail = document.createElement('div')
         const titleTag = document.createElement('div')
         const titleInfo = document.createElement('div')
 
-        const cover = document.createElement('img')
-        const coverMask = document.createElement('div')
         const coverratio = 1 / 3
+        const coverImage = document.createElement('img')
+        const coverCanvas = document.createElement('canvas')
         const title = document.getElementById('gn')
         const subTitle = document.getElementById('gj')
         const artInfo = document.getElementById('gd3')
@@ -587,39 +589,45 @@ class WebStructure {
         const tagAction = document.getElementById('tagmenu_act')
         const tagNew = document.getElementById('tagmenu_new')
 
-        titleInfoCover.appendChild(cover)
-        titleInfoCover.appendChild(coverMask)
         titleInfoDetail.appendChild(title)
         titleInfoDetail.appendChild(subTitle)
         titleInfoDetail.appendChild(artInfo)
         titleTag.appendChild(tag)
-        titleInfo.appendChild(titleInfoCover)
-        // titleInfo.appendChild(verticalLine)
         titleInfo.appendChild(titleInfoDetail)
 
-        titleBar.innerHTML = ''
-        titleBar.appendChild(titleInfo)
-        titleBar.appendChild(horizontalLine)
-        titleBar.appendChild(titleTag)
+        titleBox.innerHTML = ''
+        titleBox.appendChild(coverImage)
+        titleBox.appendChild(titleBackgroud)
+        titleBackgroud.appendChild(titleInfoCover)
+        titleBackgroud.appendChild(titleInfo)
+        titleBackgroud.appendChild(horizontalLine)
+        titleBackgroud.appendChild(titleTag)
+
+        titleBackgroud.setAttribute('class','reader-title-background')
+        coverImage.setAttribute('class','reader-title-cover-image')
+        titleInfoCover.setAttribute('class','reader-title-top-cover')
+        titleInfoDetail.setAttribute('class','reader-title-top-detail')
+        titleTag.setAttribute('class','reader-title-tag')
+        titleInfo.setAttribute('class','reader-title-info')
 
 
-        titleInfoCover.className = 'reader-title-top-cover'
-        titleInfoDetail.className = 'reader-title-top-detail'
-        titleTag.className = 'reader-title-tag'
-        titleInfo.className = 'reader-title-info'
-        // verticalLine.id = 'reader-title-top-verticalline'
-
-
-        titleBar.style = 'max-width:100%;width:100%;display:flex;flex-flow: column nowrap;justify-content: start;align-items: center;overflow: hidden;'
         titleInfo.style = 'width:100%;display: flex;flex-flow: column nowrap;justify-content: start;align-items: center;'
         titleTag.style = 'width:100%;'
-        titleInfoCover.style = `max-height:${document.body.clientWidth * coverratio}px;`
-        titleInfoDetail.style = 'padding:10px 0px 10px 0px;width:100%;'
+        titleInfoCover.style = `height:${Math.floor(document.body.clientWidth * coverratio)}px;`
+        titleBackgroud.style = `background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(51,51,51,0.9) ${Math.floor(document.body.clientWidth * coverratio)}px,rgba(51,51,51,1));`
+        // titleBackgroud.style = `background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(51,51,51,0.8) ${Math.floor(document.body.clientWidth * coverratio)}px, rgba(51,51,51,0.9) ${Math.floor(document.body.clientWidth * coverratio + 20)}px ,rgba(51,51,51,1));`
         horizontalLine.style = 'width:98%;height:1px;background-color:black;border:0px;'
         tag.style = 'width:100%;border:0px;margin:5px 0px 5px 0px;'
         tagAction.style = 'width:100%;height:auto;margin:10px 0px 0px 0px;'
         tagAction.style.fontSize = config.fontSize.toString() + 'pt'
         tagNew.style = 'width:100%;'
+
+        this.coverCanvas = coverCanvas.getContext('2d')
+        coverImage.src = galleryInformation.cover
+        coverImage.onload = () =>{
+            this.coverCanvas.drawImage(coverImage,0,0)
+            this.coverData = this.coverCanvas.getImageData(0,0,coverImage.clientWidth,coverImage.clientHeight)
+        }
 
         if (document.getElementsByClassName('gpc')[0]) {
             document.getElementsByClassName('gpc')[0].style.display = 'none'
@@ -628,7 +636,6 @@ class WebStructure {
             document.getElementById('gdo').style.display = 'none'
         }
 
-        cover.src = galleryInformation.cover
 
         for (let i = 0; i < tagNew.getElementsByTagName('input').length; i++) {
             tagNew.getElementsByTagName('input')[i].style.fontSize
@@ -871,7 +878,7 @@ class WebStructure {
         fontStyle.refresh()
 
         const newTagStyle = new StyleMonitor('input#newtagfield,input#newtagbutton')
-        newTagStyle.setStyle('font-size',config.fontSize)
+        newTagStyle.setStyle('font-size', config.fontSize)
         newTagStyle.refresh()
 
         const style = document.createElement('style')
@@ -882,6 +889,25 @@ class WebStructure {
         styleText += 'input#newtagbutton{width:auto;}'
         style.innerHTML = styleText
         document.head.appendChild(style)
+    }
+
+    isFirstLoadFinished() {
+        let isFinished = true
+        for (let i = 0; i < this.config.lazyLoadingSize; i++) {
+            if (!this.imageWidgets[i].isLoaded) {
+                isFinished = false
+                break
+            }
+        }
+        if (isFinished) {
+            print('First load finished.')
+            this.isFirstLoadFinished = function () {
+                return true
+            }
+            return true
+        } else {
+            return false
+        }
     }
 
     getLoadStates() {
@@ -1038,18 +1064,20 @@ class ActionListener {
         if (this.webStructure.loadQueue.length > 0 && this.webStructure.loadQueue[0][0] <= targetWidget) {
             this.lazyLoad(targetWidget)
         }
-        if (this.config.infiniteLoading && this.webStructure.numOfLoadingImages < this.lazyLoadingSize && this.webStructure.loadQueue.length > 0) {
+        if (this.config.infiniteLoading && this.webStructure.isFirstLoadFinished() && this.webStructure.numOfLoadingImages < this.lazyLoadingSize && this.webStructure.loadQueue.length > 0) {
             this.infinitLoad(this.lazyLoadingSize - this.webStructure.numOfLoadingImages)
         }
         requestAnimationFrame(this.listenScroll.bind(this))
     }
-    infinitLoad(nums){
-        for(let i=0;i<nums;i++){
+
+    infinitLoad(nums) {
+        for (let i = 0; i < nums; i++) {
             print('infinite Loading:')
             const [index, widget] = this.webStructure.loadQueue.shift()
             widget.show()
         }
     }
+
     lazyLoad(targetWidget) {
         while (this.webStructure.loadQueue.length > 0 && this.webStructure.loadQueue[0][0] <= targetWidget) {
             const [index, widget] = this.webStructure.loadQueue.shift()
@@ -1073,28 +1101,37 @@ class ActionListener {
 }
 
 if (!isLoadOrigin) {
+    //从script标签读取配置
     var config = new Config(document.getElementById('exReader'))
+    // 获取画廊基本信息，例如封面图、页数等等
     var galleryInformation = new GalleryInformation()
+    // 初始化网页框架，所有DOM调整都在webstructure中实现
     var webStructure = new WebStructure(config, galleryInformation)
-
+    // 如果开启了在标签页打开，则为每个画廊链接添加open blank
     if (config.isOpenBlank && /(ex|e-)hentai.org\/($|tag|\?)/.test(document.location.href)) {
         webStructure.blankHyperlink()
     }
+    // 标签翻译
     if (config.isTranslate) {
         webStructure.translate()
     }
 
+    // 判断是否是画廊页面
     if (webStructure.isGallery) {
         webStructure.scollToTop()
+        // 从cdn和github加载样式文件
         webStructure.loadStyleFile()
+        // 重构为移动端UI
         config.isMobileRebuild && webStructure.rebuildMobileStructure(config, galleryInformation)
+        // 初始化菜单
         webStructure.initMenuStructure()
-
+        // 创建图片地址解析器
         var imageParser = new ImageParser(galleryInformation)
         webStructure.initImageStructure(imageParser)
-
+        // 初始化动作监听器，用于监听页面滚动以懒加载，页面点击以激活菜单等...
         var actionListener = new ActionListener(config, webStructure)
         actionListener.listenScroll()
         actionListener.listenTouch()
     }
 }
+
