@@ -627,6 +627,8 @@ class WebStructure {
         coverImage.onload = () =>{
             this.coverCanvas.drawImage(coverImage,0,0)
             this.coverData = this.coverCanvas.getImageData(0,0,coverImage.clientWidth,coverImage.clientHeight)
+            print('debug',coverImage.clientWidth,coverImage.clientHeight,coverImage.offsetWidth,coverImage.getBoundingClientRect())
+            print(this.coverData)
         }
 
         if (document.getElementsByClassName('gpc')[0]) {
@@ -856,7 +858,8 @@ class WebStructure {
         var readerStyle = document.createElement('link');
         readerStyle.rel = 'stylesheet';
         readerStyle.type = 'text/css';
-        readerStyle.href = this.config.scriptUrl + 'Reader_V2.css?' + parseInt(Date.parse(new Date()) / 1000);
+        readerStyle.href = this.config.scriptUrl + 'Reader_V2.css';
+        // readerStyle.href = this.config.scriptUrl + 'Reader_V2.css?' + parseInt(Date.parse(new Date()) / 1000);
         document.body.appendChild(readerStyle);
         const iconStyle1 = document.createElement('link');
         iconStyle1.rel = 'stylesheet';
