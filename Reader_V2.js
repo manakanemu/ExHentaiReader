@@ -310,7 +310,7 @@ class Config {
         const fontSize = eval(scriptDOM.getAttribute('fontsize')) || 9
         const tagFontSize = eval(scriptDOM.getAttribute('tag-fontsize')) || 9
         const lazyLoadingSize = eval(scriptDOM.getAttribute('lazy-loadingsize')) || 5
-        const infiniteLoading = false
+        const infiniteLoading = true
 
         this.fontSize = fontSize
         this.tagFontSize = tagFontSize
@@ -609,33 +609,29 @@ class WebStructure {
         titleInfoDetail.setAttribute('class','reader-title-top-detail')
         titleTag.setAttribute('class','reader-title-tag')
         titleInfo.setAttribute('class','reader-title-info')
+        horizontalLine.setAttribute('class','reader-title-horizontalLine')
 
-
-        titleInfo.style = 'width:100%;display: flex;flex-flow: column nowrap;justify-content: start;align-items: center;'
-        titleTag.style = 'width:100%;'
         titleInfoCover.style = `height:${Math.floor(document.body.clientWidth * coverratio)}px;`
         titleBackgroud.style = `background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(51,51,51,0.9) ${Math.floor(document.body.clientWidth * coverratio)}px,rgba(51,51,51,1));`
-        // titleBackgroud.style = `background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(51,51,51,0.8) ${Math.floor(document.body.clientWidth * coverratio)}px, rgba(51,51,51,0.9) ${Math.floor(document.body.clientWidth * coverratio + 20)}px ,rgba(51,51,51,1));`
-        horizontalLine.style = 'width:98%;height:1px;background-color:black;border:0px;'
-        tag.style = 'width:100%;border:0px;margin:5px 0px 5px 0px;'
-        tagAction.style = 'width:100%;height:auto;margin:10px 0px 0px 0px;'
         tagAction.style.fontSize = config.fontSize.toString() + 'pt'
-        tagNew.style = 'width:100%;'
 
-        this.coverCanvas = coverCanvas.getContext('2d')
         coverImage.src = galleryInformation.cover
-        coverImage.onload = () =>{
-            this.coverCanvas.drawImage(coverImage,0,0)
-            this.coverData = this.coverCanvas.getImageData(0,0,coverImage.clientWidth,coverImage.clientHeight)
-            print('debug',coverImage.clientWidth,coverImage.clientHeight,coverImage.offsetWidth,coverImage.getBoundingClientRect())
-            print(this.coverData)
-        }
+        // this.coverCanvas = coverCanvas.getContext('2d')
+        // coverImage.onload = () =>{
+        //     this.coverCanvas.drawImage(coverImage,0,0)
+        //     this.coverData = this.coverCanvas.getImageData(0,0,coverImage.clientWidth,coverImage.clientHeight)
+        //     print('debug',coverImage.clientWidth,coverImage.clientHeight,coverImage.offsetWidth,coverImage.getBoundingClientRect())
+        //     print(this.coverData)
+        // }
 
         if (document.getElementsByClassName('gpc')[0]) {
             document.getElementsByClassName('gpc')[0].style.display = 'none'
         }
         if (document.getElementById('gdo')) {
             document.getElementById('gdo').style.display = 'none'
+        }
+        if(document.getElementsByClassName('gtb')[0]){
+            document.getElementsByClassName('gtb')[0].style.display = 'none'
         }
 
 
@@ -652,11 +648,7 @@ class WebStructure {
 
         infoClass.style.display = 'flex'
         infoClass.style.flexFlow = 'row nowrap'
-        infoClass.childNodes[0].style.height = 'auto'
-        infoClass.childNodes[0].style.width = 'auto'
-        infoClass.childNodes[0].style.padding = '10px 20px 10px 20px'
-        infoClass.childNodes[0].style.margin = '0px 10% 0px 0px'
-        infoClass.childNodes[0].style.fontSize = config.fontSize.toString() + 'pt'
+        infoClass.childNodes[0].setAttribute('style',`height:auto;width:auto;padding:10px 20px 10px 20px;margin:0px 10% 0px 0px;font-size:${config.fontSize}pt;`)
         artInfo.childNodes[3].getElementsByTagName('tr')[1].childNodes[0].style = 'padding:0px;text-align:left;'
         artInfo.childNodes[4].style.paddingLeft = '0px'
         document.getElementById('favoritelink').style.whiteSpace = 'nowrap'
@@ -1078,6 +1070,9 @@ class ActionListener {
             print('infinite Loading:')
             const [index, widget] = this.webStructure.loadQueue.shift()
             widget.show()
+            if(this.webStructure.loadQueue.length < 1){
+                return
+            }
         }
     }
 
