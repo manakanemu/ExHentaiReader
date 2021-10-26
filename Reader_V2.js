@@ -304,7 +304,7 @@ class Config {
         print('reading config ...')
         this.loadConfig()
 
-        const scriptUrl = this.getLocalConfig('scriptUrl') || scriptDOM.getAttribute('src').match(/(http.*?\/)Reader.*\.js/)[1]
+        const scriptUrl = scriptDOM.getAttribute('src').match(/(http.*?\/)Reader.*\.js/)[1] || this.getLocalConfig('scriptUrl')
         const isTranslate = this.getLocalConfig('isTranslate') || scriptDOM.getAttribute('translate') || 'true'
         const isOpenBlank = this.getLocalConfig('isOpenBlank') || scriptDOM.getAttribute('openBlank') || 'true'
 
