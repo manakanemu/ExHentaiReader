@@ -28,6 +28,10 @@ body .gm {
 .reader-img {
     position: relative;
 }
+.reader-img-line{
+    width: 100%;
+    height: 8px;
+}
 
 .reader-title-cover-image {
     width: 100%;
@@ -104,6 +108,7 @@ body .gm {
 
 .reader-info-detail-col {
     width: 45%;
+    overflow-x: scroll;
 }
 
 .reader-title-tag {
@@ -175,7 +180,42 @@ td > .tag {
 .reader-menu .iconfont {
     font-size: 70px;
 }
+.reader-menu-config{
+    width: 100%;
+    max-height: 50%;
+    height: 50%;
+    position: fixed;
+    bottom: 0px;
+    overflow-y: scroll;
+    z-index: 100;
+    background: #4f535b
+}
+.reader-menu-config-box{
+    width: 100%;
+    padding:10px;
+    border-collapse: collapse;
+}
+.reader-menu-config-line{
+    border-bottom: 2px solid #e5e5e5;
+}
+.reader-menu-config-line td{
+    text-align: left;
+}
+.reader-menu-config-title{
+    width: 50%;
+    max-width: 50%;
+    padding: 40px;
 
+}
+.reader-menu-config-edit input{
+    padding: 15px;
+}
+.reader-menu-config-edit label{
+    margin: 15px;
+}
+.reader-menu-config-edit label input{
+    margin: 15px;
+}
 body #cdiv {
     width: 100%;
     max-width: 100%;
