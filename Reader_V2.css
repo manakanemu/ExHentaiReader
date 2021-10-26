@@ -108,6 +108,7 @@ body .gm {
 
 .reader-info-detail-col {
     width: 45%;
+    margin-right: 5%;
     overflow-x: scroll;
 }
 

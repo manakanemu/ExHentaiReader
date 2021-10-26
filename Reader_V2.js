@@ -362,7 +362,7 @@ class Config {
         localStorage.setItem('ReaderConfig',this.toString())
     }
     loadConfig(){
-        const _config = JSON.parse(localStorage.getItem('ReaderConfig'))
+        const _config = JSON.parse(localStorage.getItem('ReaderConfig')) || {}
         this._config = _config
     }
 }
