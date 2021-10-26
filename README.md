@@ -13,7 +13,7 @@
 
 ### 0 更新  
 1、更新了V2 Beta版，添加懒加载功能，可视化配置，UI优化等功能。尝鲜可以用如下代码替换旧版代码：
-```javascript:(function(){var s=document.createElement("script");s.setAttribute("id","exReader");s.setAttribute("src", "https://manakanemu.github.io/ExHentaiReader/Reader_V2.min.js?");document.body.appendChild(s);}())```
+```javascript:(function(){var s=document.createElement("script");s.setAttribute("id","exReader");s.setAttribute("src","https://manakanemu.github.io/ExHentaiReader/Reader_V2.min.js?");document.body.appendChild(s);}())```
 ### 1 使用效果
 **使用前：**  
 <img align=center src='https://raw.githubusercontent.com/manakanemu/ExHentaiReader/master/describe/1.jpg' width='220px' height='480px'>  
