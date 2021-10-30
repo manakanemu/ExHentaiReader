@@ -31,6 +31,7 @@ body .gm {
 .reader-img-line{
     width: 100%;
     height: 8px;
+    display: none;
 }
 
 .reader-title-cover-image {
@@ -141,6 +142,28 @@ td > .tag {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+}
+.image-container .reader-image-reload-button{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+
+}
+.image-container i{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 70pt;
+}
+.image-container i{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 70pt;
 }
 
 .reader-menu {

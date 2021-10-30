@@ -141,15 +141,12 @@ class ImageMeta {
     }
 
     set state(value) {
-        if (value === this._state) {
+        if(this._state === -1){
             return
         }
-        if (value === -1 || (value > this._state && this._state > -1)) {
-            this._state = value
-            if (!!this.stateProxy) {
-                this.stateProxy.call(this, value)
-            }
-        }
+        const lastValue = this._state
+        this._state = value
+        !!this.stateProxy && lastValue !== value && this.stateProxy.call(this, value)
     }
 
     isGetPage() {
@@ -161,10 +158,10 @@ class ImageMeta {
     }
 
     loadIntoWidget() {
-        if (this.state > 3) {
+        if (this.state > 3 && this.url) {
             this.imageWidget.updateImageDOM()
         } else {
-            if (this.state > 1) {
+            if (this.state > 1 && this.imagePageUrl) {
                 this.callImageUrl()
             } else {
                 this.callPageUrl()
@@ -389,20 +386,12 @@ class ImageWidget {
         img.setAttribute('style', `display:none;width:${width}px;height:${height}px;border:0px;`)
         img.setAttribute('class', 'reader-img')
         img.setAttribute('src', blankImageUrl)
-        img.onerror = () => {
-            this.state++
-            if (this.state == 6) {
-                this.imgInfo.imagePageUrl += '?nl=' + this.imgInfo.nl
-                this.imgInfo.url = ''
-                this.imgInfo.nl = ''
+        img.onerror = (e) => {
+            if(typeof  e === 'number'){
+                this.state = e
             }
-            if (this.state >= 7) {
-                this.webStructure.removeLoading(this.index)
-                return
-            }
-
-            print(`Image load fails. Reloading state: [${this.state}]`)
-            this.imgInfo.loadIntoWidget()
+            print(`Image load fail ${this.index}`)
+            this.addReloadButton()
         }
         img.onload = () => {
             if (this.img.src.indexOf(this.blankImageUrl) < 0) {
@@ -411,6 +400,7 @@ class ImageWidget {
                 this.imgInfo.height = this.img.naturalHeight
                 this.updateArea()
                 this.webStructure.removeLoading(this.index)
+                this.removeLoadButton()
             }
         }
         imgInfo.stateProxy = (value) => {
@@ -439,11 +429,13 @@ class ImageWidget {
         this.webStructure = webStructure
         this.pageInfo = pageInfo
         this.img = img
+        this.imgLine = line
         this.loadingBox = loadingBox
         this.imageContainer = container
         this.containerWidth = containerWidth
         this.blankImageUrl = blankImageUrl
         this.pos = getOffsetTopByBody(this.img) || -1
+        this._waitingTime = 2000
 
 
     }
@@ -487,7 +479,39 @@ class ImageWidget {
     get isLoadStart() {
         return this.isLoading || this.isLoaded
     }
+    reloadImage(){
+        if (this.state >= 5) {
+            this.imgInfo.imagePageUrl += '?nl=' + this.imgInfo.nl
+            this.imgInfo.url = ''
+            this.imgInfo.nl = ''
+        }
 
+        print(`Reloading Image: ${this.index} state: ${this.state}`)
+        this.imgInfo.loadIntoWidget()
+    }
+    addReloadButton(){
+        if(this.button || this.state == -1){
+            return
+        }
+        print(`debug add button ${this.index} ${this.state}`)
+        const button = document.createElement('div')
+        this.button = button
+        const buttonIcon = document.createElement('i')
+        button.setAttribute('class','reader-image-reload-button')
+        buttonIcon.setAttribute('class','iconfont icon-refresh')
+        button.appendChild(buttonIcon)
+        this.imageContainer.appendChild(button)
+        button.onclick = (e) =>{
+            print(`debug add button clicked ${this.index}`)
+            this.webStructure.actionListener.cancelTouch()
+            this.reloadImage()
+            this.removeLoadButton()
+        }
+    }
+    removeLoadButton(){
+        this.button && this.button instanceof HTMLElement &&  this.button.parentElement.removeChild(this.button)
+        this.button = null
+    }
     loadingBoxShow(message) {
         if (message !== this.loadingBox.innerText) {
             this.loadingBox.innerText = message
@@ -500,10 +524,17 @@ class ImageWidget {
     }
 
     updateImageDOM() {
-        if (this.img.src !== this.imgInfo.url) {
+        if (this.img.src !== this.imgInfo.url && this.state != -1) {
             this.state++
             this.img.src = this.imgInfo.url
-            this.blankImageUrl
+            setTimeout(this.timeout.bind(this),this._waitingTime)
+        }
+    }
+    timeout(){
+        if(!this.isLoaded){
+            print(`image ${this.index} timeout`)
+            this.addReloadButton()
+            this.loadingBoxHiden()
         }
     }
 
@@ -535,6 +566,7 @@ class ImageWidget {
     show() {
         this.webStructure.addLoading(this.index)
         this.img.style.display = 'block'
+        this.imgLine.style.display = 'block'
         this.updatePos()
         this.imgInfo.loadIntoWidget()
     }
@@ -706,6 +738,7 @@ class WebStructure {
         this.loadingQuery = new Set()
         this.imageWidgets = []
         this.galleryPages = []
+        // this.actionListener = null
         this.resetDynamicStyle(configProxy)
 
 
@@ -800,8 +833,10 @@ class WebStructure {
         if (document.getElementById('gdo')) {
             document.getElementById('gdo').style.display = 'none'
         }
-        if(document.getElementsByClassName('gtb')[0]){
-            document.getElementsByClassName('gtb')[0].style.display = 'none'
+        if(document.getElementsByClassName('gtb').length > 0){
+            for(let g of document.getElementsByClassName('gtb')){
+                g.style.display = 'none'
+            }
         }
 
 
@@ -1056,18 +1091,22 @@ class WebStructure {
     }
 
     loadStyleFile() {
-        var readerStyle = document.createElement('link');
+        const readerStyle = document.createElement('link');
         readerStyle.rel = 'stylesheet';
         readerStyle.type = 'text/css';
-        readerStyle.href = this.config.scriptUrl + 'Reader_V2.css';
+        readerStyle.href = this.config.scriptUrl + 'Reader_V2.min.css';
+
+        // const readerStyle = document.createElement('style')
+        // readerStyle.innerHTML = 'body,body .gm,html{width:100%;margin:0;padding:0}body,html{height:100%}body .gm{max-width:100%;display:flex;flex-flow:column nowrap;justify-content:start;align-items:center;overflow:hidden;border:0;background-size:100%;background-repeat:no-repeat}.image-container,.reader-img,body,html{position:relative}.reader-img-line{width:100%;height:8px;display:none}.reader-title-cover-image{width:100%;position:absolute;top:0;z-index:1}.reader-title-background{width:100%;position:relative;z-index:10}.reader-title-top-cover{position:relative;width:100%;overflow:hidden}.reader-title-info{width:100%;display:flex;flex-flow:column nowrap;justify-content:start;align-items:center}.reader-title-top-detail{position:relative;padding:10px 0;width:100%}.reader-title-top-detail #gd3{padding:10px 15px 3px}.reader-title-top-detail #gj{padding-bottom:10px}.reader-title-top-detail #gd3,.reader-title-top-detail #gdd,.reader-title-top-detail #gdd table{width:100%}.reader-title-top-detail #gdr{margin:0}.reader-title-top-detail #gdf{padding-top:0}.reader-info-detail-row{display:flex;flex-flow:row nowrap;width:100%}.reader-info-detail-col{width:45%;margin-right:5%;overflow-x:scroll}.reader-title-tag>#gd4{width:100%;border:0;margin:5px 0}.reader-title-tag #gd4 #tagmenu_act{width:100%;height:auto;margin:10px 0 0}.reader-title-tag,.reader-title-tag #gd4 #tagmenu_new{width:100%}td>.tag{background:rgba(63,63,63,.9)}.reader-title-horizontalLine{width:98%;height:1px;background-color:#000;border:0}.image-container i,.loading-box{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}.loading-box{display:none}.image-container .reader-image-reload-button{width:100%;height:100%;position:absolute;top:0;left:0}.image-container i{font-size:70pt}.reader-menu{position:fixed;width:100%;background-color:#363940}.transform-anime{transition:transform 200ms cubic-bezier(.18,.76,.18,.8);-webkit-transition:transform 200ms cubic-bezier(.18,.76,.18,.8)}#top-menu{height:150px;top:0}#bottom-menu{height:150px;bottom:0;display:flex;flex-flow:row;align-items:center;justify-content:space-around;z-index:99}.top-hidden{transform:translateY(-100%)}.bottom-hidden{transform:translateY(100%)}.reader-menu .iconfont{font-size:70px}.reader-menu-config,body #cdiv{width:100%;position:fixed;height:50%;bottom:0;overflow-y:scroll;z-index:100}.reader-menu-config{max-height:50%;background:#4f535b}.reader-menu-config-box{width:100%;padding:10px;border-collapse:collapse}.reader-menu-config-line{border-bottom:2px solid #e5e5e5}.reader-menu-config-line td{text-align:left}.reader-menu-config-title{width:50%;max-width:50%;padding:40px}.reader-menu-config-edit input{padding:15px}.reader-menu-config-edit label,.reader-menu-config-edit label input{margin:15px}body #cdiv{max-width:100%;margin:0}.zoom3{transform:scale(3)}'
         // readerStyle.href = this.config.scriptUrl + 'Reader_V2.css?' + parseInt(Date.parse(new Date()) / 1000);
-        document.body.appendChild(readerStyle);
+
         const iconStyle1 = document.createElement('link');
         iconStyle1.rel = 'stylesheet';
         iconStyle1.type = 'text/css';
         iconStyle1.href = '//at.alicdn.com/t/font_2872755_lbcgjof8f0e.css';
-        document.body.appendChild(iconStyle1);
 
+        document.body.appendChild(readerStyle);
+        document.body.appendChild(iconStyle1);
     }
 
     resetDynamicStyle(configProxy) {
@@ -1208,6 +1247,7 @@ class ActionListener {
     constructor(config, webStructure) {
         this.lazyLoadingSize = config.lazyLoadingSize
         this.webStructure = webStructure
+        this.webStructure.actionListener = this
         this.isTouch = false
         this.config = config
     }
@@ -1229,7 +1269,10 @@ class ActionListener {
         }
         this.touchTimes = 0
     }
-
+    cancelTouch(){
+        clearTimeout(this.touchEventId)
+        this.touchTimes = 0
+    }
     listenTouch() {
 
         this.touchTimes = 0
@@ -1241,17 +1284,14 @@ class ActionListener {
                 this.touchEvent(this.touchTimes)
             }, 300)
         }
-        const cancelTouch = () => {
-            clearTimeout(this.touchEventId)
-            this.touchTimes = 0
-        }
+
         const imageArea = document.getElementById('gdt')
         imageArea.ontouchstart = (e) => {
             this.isTouch = true
         }
         imageArea.ontouchmove = (e) => {
             this.isTouch = false
-            cancelTouch()
+            this.cancelTouch()
         }
         imageArea.ontouchend = (e) => {
             if (this.isTouch) {
