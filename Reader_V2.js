@@ -95,6 +95,7 @@ class GalleryInformation {
         this.pageNum = pages
         this.url = galleryUrl
         this.imgPerPage = imgPerPage
+        this.imageNum = Number(metaInfo['length'].match(/\d*/)[0])
         print('GalleryInformation:',this)
     }
 }
@@ -278,7 +279,7 @@ class GalleryPage {
 class ImageParser {
     constructor(information) {
 
-        const imageNum = Number(information.detail.length.match(/\d*/)[0])
+        const imageNum = information.imageNum
         const pageNum = information.pageNum
 
         let galleryPages = []
@@ -321,9 +322,12 @@ class Config {
         // this.scriptUrl = !!scriptUrl ? scriptUrl.match(/(http.*?\/)Reader.*\.js/)[1] : 'http://localhost:63342/ExHentaiReader'
         this.isInfiniteLoading = isInfiniteLoading === 'true' || isInfiniteLoading === true ? true : false
         this.$registers = {
-            'fontSize':['文字字号','input_number'],
-            'tagFontSize' :['标签字号','input_number'],
-            'lazyLoadingSize' : ['加载图片数','input_number'],
+            // 'fontSize':['文字字号','input_number'],
+            'fontSize':['文字字号','select_8_40'],
+            'tagFontSize' :['标签字号','select_8_40'],
+            // 'tagFontSize' :['标签字号','input_number'],
+            // 'lazyLoadingSize' : ['加载图片数','input_number'],
+            'lazyLoadingSize' : ['同时加载图片数','select_1_20'],
             'lineColor' : ['分界线颜色','input'],
             'isInfiniteLoading':['开启无限加载','bibox'],
             'isTranslate' : ['是否翻译','bibox'],
@@ -369,7 +373,8 @@ class ImageWidget {
         if (index !== imgInfo.index) {
             throw new Error(`ImageWidget index:${index} do not match ImageMeta index:${imgInfo.index} `)
         }
-        const blankImageUrl = '//exhentai.org/img/blank.gif'
+        const blankImageUrl = '//ehgt.org/g/blank.gif'
+        // const blankImageUrl = '//exhentai.org/img/blank.gif'
         const width = containerWidth
         imgInfo.containerWidth = containerWidth
         imgInfo.imageWidget = this
@@ -674,10 +679,35 @@ class ConfigProxy{
                 }
 
                 const configName = input.getAttribute('configname')
-                print('value',value,'name',configName)
                 this.config.change(configName,value)
                 this.updateStyleProxy()
             }
+        }
+        if(type.startsWith('select')){
+            const params = type.split('_')
+            const start  = Number(params[1])
+            const end  = Number(params[2])
+            const select = document.createElement('select')
+            select.setAttribute('configname',configName)
+            select.setAttribute('class','reader-menu-config-font')
+
+            for(let i = start; i <= end;i++){
+                const option = document.createElement('option')
+                option.value = i
+                option.innerText = i
+                select.appendChild(option)
+            }
+            select.value = this.config[configName]
+
+            select.onchange = (e) => {
+                const select = e.target
+                const value = Number(select.value)
+                const configName = select.getAttribute('configname')
+                this.config.change(configName,value)
+                this.updateStyleProxy()
+            }
+
+            editBox.appendChild(select)
         }
         if(type.startsWith('bibox')){
             const positive = document.createElement('label')
@@ -734,6 +764,7 @@ class ConfigProxy{
 class WebStructure {
     constructor(configProxy, galleryInformation) {
         this.config = configProxy.config
+        this.galleryInformation = galleryInformation
         this.loadQueue = []
         this.loadingQuery = new Set()
         this.imageWidgets = []
@@ -745,7 +776,7 @@ class WebStructure {
     }
 
     get isGallery() {
-        return /\/exhentai\.org\/g\//.test(window.location.href)
+        return /\/e(x|-)hentai\.org\/g\//.test(window.location.href)
     }
 
     get isWaitingForLoad() {
@@ -909,6 +940,10 @@ class WebStructure {
             }
         }
     }
+    resetReader() {
+        localStorage.removeItem('ReaderConfig')
+        document.location.href = document.location.href
+    }
      initConfigStucture(configProxy){
         this.configProxy = configProxy
         const configContainer = document.createElement('div')
@@ -990,15 +1025,15 @@ class WebStructure {
         this._comments = document.getElementById('cdiv')
         this._comments.classList.add('bottom-hidden')
 
-        const iconRefresh = document.createElement('i')
-        iconRefresh.setAttribute('class', 'iconfont icon-refresh')
-        iconRefresh.onclick = () => {
-            this.forceRefresh()
+        const iconReset = document.createElement('i')
+        iconReset.setAttribute('class', 'iconfont icon-refresh')
+        iconReset.onclick = () => {
+            this.resetReader()
         }
         bottomMenu.appendChild(iconSettings)
+        bottomMenu.appendChild(iconReset)
         bottomMenu.appendChild(iconOriginal)
         bottomMenu.appendChild(iconComments)
-        bottomMenu.appendChild(iconRefresh)
     }
 
     showMenu() {
@@ -1057,6 +1092,7 @@ class WebStructure {
         // 从exhentai原始容器中读取每个页面的url添加到pageUrl，并生成对应的自定义图像标签
         const imageWidgets = []
         const loadQueue = []
+        // const blankImage = document.location.origin.indexOf('exhentai') > -1 ? '//exhentai.org/img/blank.gif' : '//ehgt.org/g/blank.gif'
         for (let i = 0; i < imageNum; i++) {
             const numOfPage = Math.floor(i / imageParser.imgPerPage)
             const index = i % imageParser.imgPerPage
@@ -1064,6 +1100,7 @@ class WebStructure {
             imageWidgets.push(imgwidget)
             loadQueue.push([i, imgwidget])
         }
+
         this.imageWidgets = imageWidgets
         this.loadQueue = loadQueue
         this.galleryPages = imageParser.galleryPages
@@ -1113,7 +1150,7 @@ class WebStructure {
         print('resetting font size style ...')
         const config = configProxy.config
         const tagStyle = new StyleProxy('.gtw,.gt,.gtl,.gt,.tag')
-        const fontStyle = new StyleProxy('h1#gn,h1#gj,loading-box,.tc,.reader-menu-config-font,.reader-info-detail-col td')
+        const fontStyle = new StyleProxy('h1#gn,h1#gj,loading-box,.tc,.reader-menu-config-font,.reader-info-detail-col td,#cdiv .c6')
         const newTagStyle = new StyleProxy('input#newtagfield,input#newtagbutton')
         const biboxStyle = new StyleProxy('label input')
         const lineStyle = new StyleProxy('.reader-img-line')
@@ -1139,7 +1176,7 @@ class WebStructure {
 
     isFirstLoadFinished() {
         let isFinished = true
-        for (let i = 0; i < this.config.lazyLoadingSize; i++) {
+        for (let i = 0; i < Math.min(this.config.lazyLoadingSize,this.galleryInformation.imageNum); i++) {
             if (!this.imageWidgets[i].isLoaded) {
                 isFinished = false
                 break
@@ -1358,7 +1395,7 @@ if (!isLoadOrigin) {
     // 初始化网页框架，所有DOM调整都在webstructure中实现
     var webStructure = new WebStructure(configProxy, galleryInformation)
     // 如果开启了在标签页打开，则为每个画廊链接添加open blank
-    if (config.isOpenBlank && /(ex|e-)hentai.org\/($|tag|\?)/.test(document.location.href)) {
+    if (config.isOpenBlank && /e(x|-)hentai.org\/($|tag|\?)/.test(document.location.href)) {
         webStructure.blankHyperlink()
     }
     // 标签翻译

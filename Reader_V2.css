@@ -20,6 +20,18 @@ body .gm {
     background-size: 100%;
     background-repeat: no-repeat;
 }
+body i,body .gm,body .gtb,body #cdiv,.gm a,.reader-menu-config{
+    color: #f1f1f1;
+}
+body #gdt,body #cdiv{
+    background-color: #4f535b;
+}
+#cdiv .c2{
+    background-color: #34353b;
+}
+select::-webkit-scrollbar{
+    display: none;
+}
 
 .image-container {
     position: relative;
