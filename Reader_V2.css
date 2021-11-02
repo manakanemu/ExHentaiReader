@@ -224,8 +224,12 @@ td > .tag {
     bottom: 0px;
     overflow-y: scroll;
     z-index: 100;
-    background: #4f535b
+    background: #4f535b;
+    overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: none;
 }
+
 .reader-menu-config-box{
     width: 100%;
     padding:10px;
@@ -257,9 +261,10 @@ body #cdiv {
     max-width: 100%;
     position: fixed;
     height: 50%;
+    max-height: 50%;
     bottom: 0px;
     margin: 0px;
-    overflow-y: scroll;
+    overflow-y: scroll;0=
     z-index: 100;
 }
 

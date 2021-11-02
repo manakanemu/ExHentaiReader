@@ -11,8 +11,6 @@ function getOffsetTopByBody(el) {
     return offsetTop
 }
 
-print('Run Manakanemu/Exhentai Reader')
-
 function GET(url, fn, type, async = true) {
     // Ajax GET 请求封装，回调函数fn使用GET上下文，如果需要指定回调函数上下文，请指定GET上下文：GET.call(this,params...)
     print('GET: ' + url)
@@ -50,24 +48,36 @@ function GET(url, fn, type, async = true) {
     }
 }
 
-//脚本版本和字典版本，脚本版本可用于更新通知（未实现），字典版本可以用于控制本地字典更新
-var VERSION = 1.3
-var CURRENT_TAG_DICT_VERSION = 1.3
-
-//判断是否使用原汁原味网页，如果isLoadOrigin为true，则后续逻辑不会执行
-var isLoadOrigin = (window.location.href.indexOf('originalReader=') > -1)
-if (isLoadOrigin) {
-    const href = window.location.href.split('&')
-    const orginTimestamp = parseInt(href[0].split('=')[1])
-    if (parseInt(Date.parse(new Date()) / 1000) - orginTimestamp > 2) {
-        isLoadOrigin = false
-    } else {
-        isLoadOrigin = true
+function lockScroll(ele) {
+    ele.oonscroll = ele.onscroll
+    ele.oontouchstart = ele.ontouchstart
+    ele.oontouchmove = ele.ontouchmove
+    ele.oontouchend = ele.ontouchend
+    ele.onscroll = function (e) {
+        e.preventDefault()
     }
+    ele.ontouchstart = function(){}
+    ele.ontouchmove = function(){}
+    ele.ontouchend = function () {}
+    ele.classList.add('fixed')
+}
+
+function unlockScroll(ele) {
+    if(ele.oonscroll){ele.onscroll = ele.oonscroll}
+    if(ele.oontouchstart) {ele.ontouchstart = ele.oontouchstart}
+    if(ele.oontouchmove){ele.ontouchmove = ele.oontouchmove}
+    if(ele.oontouchend){ele.ontouchend = ele.oontouchend}
+    ele.oonscroll = undefined
+    ele.oontouchstart = undefined
+    ele.oontouchmove = undefined
+    ele.oontouchend = undefined
+    ele.classList.remove('fixed')
+
 }
 
 
 class GalleryInformation {
+    // 画廊信息解析类，鉴于ehentai服务器性质，脚本注重减少请求次数，画廊信息尽量从页面解析，而不调用api
     constructor() {
         const title = !!document.getElementById('gn') ? document.getElementById('gn').innerText : ''
         const cover = !!document.getElementById('gd1') ? document.getElementById('gd1').innerHTML.match(/url\((.*)\)/i)[1] : ''
@@ -96,11 +106,13 @@ class GalleryInformation {
         this.url = galleryUrl
         this.imgPerPage = imgPerPage
         this.imageNum = Number(metaInfo['length'].match(/\d*/)[0])
-        print('GalleryInformation:',this)
+        print('GalleryInformation:', this)
     }
 }
 
 class ImageMeta {
+    // 图片元信息类，解析图片网页地址、图片地址、图片尺寸、图片顺序等信息，同时在懒加载过程中作为图片加载的基础类，记录图片加载状态
+    // 图片地址有三类信息，分别是：画廊页（打开本子后显示的网页；包含多幅图片页。）地址galleryPage、图片页（在画廊页点击单张图片后显示的网页）地址imagePageUrl、图片地址url（图片页单张图片的实际地址）
     constructor(page, index, url = '', pageUrl = '', width = 100, height = 139) {
         this._url = url
         this.nl = ''
@@ -142,7 +154,7 @@ class ImageMeta {
     }
 
     set state(value) {
-        if(this._state === -1){
+        if (this._state === -1) {
             return
         }
         const lastValue = this._state
@@ -171,11 +183,13 @@ class ImageMeta {
     }
 
     callPageUrl() {
+        //向画廊页请求图片页地址
         this.state = 1
         this.galleryPage.callPageUrl(this.imageWidget)
     }
 
     callImageUrl() {
+        // 获取图片页中图片的真实地址，同时获取备用图片页的nl参数
         this.state = 3
         GET.call(this, this.imagePageUrl, function (d) {
             var imgUrl = d.match(/<img id=\"img\" src=\"(.+?)\"/i)[1]
@@ -197,6 +211,7 @@ class ImageMeta {
 }
 
 class GalleryPage {
+    // 画廊信息类，存储画廊页面中多个图片页信息
     constructor(index, size, pageUrl, timeout = 5000) {
         const images = []
         for (let i = 0; i < size; i++) {
@@ -214,7 +229,8 @@ class GalleryPage {
         this.timeout = timeout
     }
 
-    getImagePageFromeDom(dom) {
+    getImagePageFromDOM(dom) {
+        // 直接从当前网页解析图片页地址
         const imageWidgets = dom.getElementsByClassName('gdtm')
         for (let i = 0; i < imageWidgets.length; i++) {
             const imageWidget = imageWidgets[i]
@@ -291,7 +307,7 @@ class ImageParser {
         this.imageNum = imageNum
         this.imgPerPage = information.imgPerPage
         this.galleryPages = galleryPages
-        this.galleryPages[0].getImagePageFromeDom(document.body)
+        this.galleryPages[0].getImagePageFromDOM(document.body)
     }
 
 }
@@ -316,42 +332,45 @@ class Config {
         this.tagFontSize = Number(tagFontSize)
         this.lazyLoadingSize = Number(lazyLoadingSize)
         this.lineColor = lineColor
-        this.isTranslate = isTranslate === 'true' || isTranslate === true? true : false
+        this.isTranslate = isTranslate === 'true' || isTranslate === true ? true : false
         this.isOpenBlank = isOpenBlank === 'true' || isOpenBlank === true ? true : false
         this.scriptUrl = scriptUrl
         // this.scriptUrl = !!scriptUrl ? scriptUrl.match(/(http.*?\/)Reader.*\.js/)[1] : 'http://localhost:63342/ExHentaiReader'
         this.isInfiniteLoading = isInfiniteLoading === 'true' || isInfiniteLoading === true ? true : false
         this.$registers = {
             // 'fontSize':['文字字号','input_number'],
-            'fontSize':['文字字号','select_8_40'],
-            'tagFontSize' :['标签字号','select_8_40'],
+            'fontSize': ['文字字号', 'select_8_40'],
+            'tagFontSize': ['标签字号', 'select_8_40'],
             // 'tagFontSize' :['标签字号','input_number'],
             // 'lazyLoadingSize' : ['加载图片数','input_number'],
-            'lazyLoadingSize' : ['同时加载图片数','select_1_20'],
-            'lineColor' : ['分界线颜色','input'],
-            'isInfiniteLoading':['开启无限加载','bibox'],
-            'isTranslate' : ['是否翻译','bibox'],
-            'isOpenBlank' : ['是否在新标签打开画廊','bibox'],
+            'lazyLoadingSize': ['同时加载图片数', 'select_1_20'],
+            'lineColor': ['分界线颜色', 'input'],
+            'isInfiniteLoading': ['开启无限加载', 'bibox'],
+            'isTranslate': ['是否翻译', 'bibox'],
+            'isOpenBlank': ['是否在新标签打开画廊', 'bibox'],
         }
 
         this.saveConfig()
-        print('config:',this)
+        print('config:', this)
     }
-    change(configName,value){
+
+    change(configName, value) {
         this[configName] = value
         this.saveConfig()
     }
-    getLocalConfig(name){
-        if(name in this._config){
+
+    getLocalConfig(name) {
+        if (name in this._config) {
             return this._config[name].toString()
-        }else {
+        } else {
             return ''
         }
     }
-    toString(){
+
+    toString() {
         const _config = {}
-        for(let key in this){
-            if(key.startsWith('_')){
+        for (let key in this) {
+            if (key.startsWith('_')) {
                 continue
             }
             _config[key] = this[key]
@@ -359,10 +378,11 @@ class Config {
         return JSON.stringify(_config)
     }
 
-    saveConfig(){
-        localStorage.setItem('ReaderConfig',this.toString())
+    saveConfig() {
+        localStorage.setItem('ReaderConfig', this.toString())
     }
-    loadConfig(){
+
+    loadConfig() {
         const _config = JSON.parse(localStorage.getItem('ReaderConfig')) || {}
         this._config = _config
     }
@@ -392,7 +412,7 @@ class ImageWidget {
         img.setAttribute('class', 'reader-img')
         img.setAttribute('src', blankImageUrl)
         img.onerror = (e) => {
-            if(typeof  e === 'number'){
+            if (typeof e === 'number') {
                 this.state = e
             }
             print(`Image load fail ${this.index}`)
@@ -423,7 +443,7 @@ class ImageWidget {
             }
         }
         const line = document.createElement('div')
-        line.setAttribute('class','reader-img-line')
+        line.setAttribute('class', 'reader-img-line')
 
         container.appendChild(loadingBox)
         container.appendChild(img)
@@ -484,7 +504,8 @@ class ImageWidget {
     get isLoadStart() {
         return this.isLoading || this.isLoaded
     }
-    reloadImage(){
+
+    reloadImage() {
         if (this.state >= 5) {
             this.imgInfo.imagePageUrl += '?nl=' + this.imgInfo.nl
             this.imgInfo.url = ''
@@ -494,29 +515,32 @@ class ImageWidget {
         print(`Reloading Image: ${this.index} state: ${this.state}`)
         this.imgInfo.loadIntoWidget()
     }
-    addReloadButton(){
-        if(this.button || this.state == -1){
+
+    addReloadButton() {
+        if (this.button || this.state == -1) {
             return
         }
         print(`debug add button ${this.index} ${this.state}`)
         const button = document.createElement('div')
         this.button = button
         const buttonIcon = document.createElement('i')
-        button.setAttribute('class','reader-image-reload-button')
-        buttonIcon.setAttribute('class','iconfont icon-refresh')
+        button.setAttribute('class', 'reader-image-reload-button')
+        buttonIcon.setAttribute('class', 'iconfont icon-refresh')
         button.appendChild(buttonIcon)
         this.imageContainer.appendChild(button)
-        button.onclick = (e) =>{
+        button.onclick = (e) => {
             print(`debug add button clicked ${this.index}`)
             this.webStructure.actionListener.cancelTouch()
             this.reloadImage()
             this.removeLoadButton()
         }
     }
-    removeLoadButton(){
-        this.button && this.button instanceof HTMLElement &&  this.button.parentElement.removeChild(this.button)
+
+    removeLoadButton() {
+        this.button && this.button instanceof HTMLElement && this.button.parentElement.removeChild(this.button)
         this.button = null
     }
+
     loadingBoxShow(message) {
         if (message !== this.loadingBox.innerText) {
             this.loadingBox.innerText = message
@@ -532,11 +556,12 @@ class ImageWidget {
         if (this.img.src !== this.imgInfo.url && this.state != -1) {
             this.state++
             this.img.src = this.imgInfo.url
-            setTimeout(this.timeout.bind(this),this._waitingTime)
+            setTimeout(this.timeout.bind(this), this._waitingTime)
         }
     }
-    timeout(){
-        if(!this.isLoaded){
+
+    timeout() {
+        if (!this.isLoaded) {
             print(`image ${this.index} timeout`)
             this.addReloadButton()
             this.loadingBoxHiden()
@@ -597,14 +622,14 @@ class StyleProxy {
                 throw Error('keys and values do not match')
             } else {
                 for (let i = 0; i < key.length; i++) {
-                    if(this._styles[key[i]] !== `${value[i]}${suffix}`){
+                    if (this._styles[key[i]] !== `${value[i]}${suffix}`) {
                         this._styles[key[i]] = `${value[i]}${suffix}`
                         this.isStyleChanged = true
                     }
                 }
             }
         } else {
-            if(this._styles[key] !== `${value}${suffix}`){
+            if (this._styles[key] !== `${value}${suffix}`) {
                 this._styles[key] = `${value}${suffix}`
                 this.isStyleChanged = true
             }
@@ -612,7 +637,7 @@ class StyleProxy {
     }
 
     refresh() {
-        if(this.isStyleChanged){
+        if (this.isStyleChanged) {
             let style = ''
             for (let key in this._styles) {
                 style += `${key}:${this._styles[key]};`
@@ -622,76 +647,82 @@ class StyleProxy {
         }
     }
 }
-class ConfigProxy{
+
+class ConfigProxy {
     constructor(config) {
         this.config = config
 
         this._styleProxys = {}
         this._styleProxysSet = new Set()
     }
-    bindStyleProxy(configName,styleProxy,styleName,suffix=''){
-        if(!(configName in this._styleProxys)){
+
+    bindStyleProxy(configName, styleProxy, styleName, suffix = '') {
+        if (!(configName in this._styleProxys)) {
             this._styleProxys[configName] = new Array()
         }
-        this._styleProxys[configName].push([styleProxy,styleName,suffix])
+        this._styleProxys[configName].push([styleProxy, styleName, suffix])
         this._styleProxysSet.add(styleProxy)
     }
-    updateStyleProxy(){
-        for(let configName in this._styleProxys){
-            for(let proxyInfo of this._styleProxys[configName]){
-                const [styleProxy,styleName,suffix] = proxyInfo
-                styleProxy.setStyle(styleName,this.config[configName],suffix)
+
+    updateStyleProxy() {
+        for (let configName in this._styleProxys) {
+            for (let proxyInfo of this._styleProxys[configName]) {
+                const [styleProxy, styleName, suffix] = proxyInfo
+                styleProxy.setStyle(styleName, this.config[configName], suffix)
 
             }
         }
-        for(let proxy of this._styleProxysSet){
+        for (let proxy of this._styleProxysSet) {
             proxy.refresh()
         }
     }
-    getLineDOM(){
+
+    getLineDOM() {
         const line = document.createElement('tr')
-        line.setAttribute('class','reader-menu-config-line ')
+        line.setAttribute('class', 'reader-menu-config-line ')
         return line
     }
-    getTitleDOM(title){
+
+    getTitleDOM(title) {
         const dom = document.createElement('td')
-        dom.setAttribute('class','reader-menu-config-title reader-menu-config-font')
+        dom.setAttribute('class', 'reader-menu-config-title reader-menu-config-font')
         dom.innerText = title
         return dom
     }
-    getEditDOM(configName,type){
+
+    getEditDOM(configName, type) {
         const editBox = document.createElement('td')
 
-        editBox.setAttribute('class',`reader-menu-config-edit reader-menu-config-font`)
-        if(type.startsWith('input')){
+        editBox.setAttribute('class', `reader-menu-config-edit reader-menu-config-font`)
+        if (type.startsWith('input')) {
             const edit = document.createElement('input')
-            edit.setAttribute('class','reader-menu-config-font')
-            edit.setAttribute('configname',configName)
+            edit.setAttribute('class', 'reader-menu-config-font')
+            edit.setAttribute('configname', configName)
             edit.value = this.config[configName]
             editBox.appendChild(edit)
             const config = this.config
 
-            edit.onchange =  (e) =>{
+            edit.onchange = (e) => {
                 const input = e.target
                 let value = input.value
-                if(type.indexOf('number') > -1){
+                if (type.indexOf('number') > -1) {
                     value = Number(value)
                 }
 
                 const configName = input.getAttribute('configname')
-                this.config.change(configName,value)
+                this.config.change(configName, value)
                 this.updateStyleProxy()
             }
         }
-        if(type.startsWith('select')){
+        if (type.startsWith('select')) {
             const params = type.split('_')
-            const start  = Number(params[1])
-            const end  = Number(params[2])
+            const start = Number(params[1])
+            const end = Number(params[2])
             const select = document.createElement('select')
-            select.setAttribute('configname',configName)
-            select.setAttribute('class','reader-menu-config-font')
+            select.setAttribute('configname', configName)
+            select.setAttribute('class', 'reader-menu-config-font')
 
-            for(let i = start; i <= end;i++){
+            for (let i = start; i <= end; i++) {
                 const option = document.createElement('option')
                 option.value = i
                 option.innerText = i
@@ -703,36 +734,35 @@ class ConfigProxy{
                 const select = e.target
                 const value = Number(select.value)
                 const configName = select.getAttribute('configname')
-                this.config.change(configName,value)
+                this.config.change(configName, value)
                 this.updateStyleProxy()
             }
 
             editBox.appendChild(select)
         }
-        if(type.startsWith('bibox')){
+        if (type.startsWith('bibox')) {
             const positive = document.createElement('label')
             const negative = document.createElement('label')
             const value = this.config[configName]
             const positiveChecked = value ? 'checked' : ''
             const negativeChecked = value ? '' : 'checked'
             positive.innerHTML = `<input type="radio" name="${configName}" value="positive" ${positiveChecked}>是`
-            positive.setAttribute('class','reader-menu-config-font')
+            positive.setAttribute('class', 'reader-menu-config-font')
             negative.innerHTML = `<input type="radio" name="${configName}" value="negative" ${negativeChecked}>否`
-            negative.setAttribute('class','reader-menu-config-font')
+            negative.setAttribute('class', 'reader-menu-config-font')
 
             positive.onchange = (e) => {
                 const box = e.target
                 const configName = box.getAttribute('name')
                 const value = box.checked
-                this.config.change(configName,value)
+                this.config.change(configName, value)
             }
             negative.onchange = (e) => {
                 const box = e.target
                 const configName = box.getAttribute('name')
                 const value = !box.checked
-                this.config.change(configName,value)
+                this.config.change(configName, value)
             }
-
 
 
             editBox.appendChild(positive)
@@ -741,16 +771,17 @@ class ConfigProxy{
 
         return editBox
     }
-    getConfigDOM(){
+
+    getConfigDOM() {
         const registers = this.config.$registers
         const configBox = document.createElement('table')
-        configBox.setAttribute('class','reader-menu-config-box')
+        configBox.setAttribute('class', 'reader-menu-config-box')
 
-        for(let configName in registers){
-            const [title,type] = registers[configName]
+        for (let configName in registers) {
+            const [title, type] = registers[configName]
             const lineDOM = this.getLineDOM()
             const titleDOM = this.getTitleDOM(title)
-            const editDOM = this.getEditDOM(configName,type)
+            const editDOM = this.getEditDOM(configName, type)
             lineDOM.appendChild(titleDOM)
             lineDOM.appendChild(editDOM)
             configBox.appendChild(lineDOM)
@@ -837,13 +868,13 @@ class WebStructure {
         titleBackgroud.appendChild(horizontalLine)
         titleBackgroud.appendChild(titleTag)
 
-        titleBackgroud.setAttribute('class','reader-title-background')
-        coverImage.setAttribute('class','reader-title-cover-image')
-        titleInfoCover.setAttribute('class','reader-title-top-cover')
-        titleInfoDetail.setAttribute('class','reader-title-top-detail')
-        titleTag.setAttribute('class','reader-title-tag')
-        titleInfo.setAttribute('class','reader-title-info')
-        horizontalLine.setAttribute('class','reader-title-horizontalLine')
+        titleBackgroud.setAttribute('class', 'reader-title-background')
+        coverImage.setAttribute('class', 'reader-title-cover-image')
+        titleInfoCover.setAttribute('class', 'reader-title-top-cover')
+        titleInfoDetail.setAttribute('class', 'reader-title-top-detail')
+        titleTag.setAttribute('class', 'reader-title-tag')
+        titleInfo.setAttribute('class', 'reader-title-info')
+        horizontalLine.setAttribute('class', 'reader-title-horizontalLine')
 
         titleInfoCover.style = `height:${Math.floor(document.body.clientWidth * coverratio)}px;`
         titleBackgroud.style = `background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(51,51,51,0.9) ${Math.floor(document.body.clientWidth * coverratio)}px,rgba(51,51,51,1));`
@@ -864,8 +895,8 @@ class WebStructure {
         if (document.getElementById('gdo')) {
             document.getElementById('gdo').style.display = 'none'
         }
-        if(document.getElementsByClassName('gtb').length > 0){
-            for(let g of document.getElementsByClassName('gtb')){
+        if (document.getElementsByClassName('gtb').length > 0) {
+            for (let g of document.getElementsByClassName('gtb')) {
                 g.style.display = 'none'
             }
         }
@@ -884,7 +915,7 @@ class WebStructure {
 
         infoClass.style.display = 'flex'
         infoClass.style.flexFlow = 'row nowrap'
-        infoClass.childNodes[0].setAttribute('style',`height:auto;width:auto;padding:10px 20px 10px 20px;margin:0px 10% 0px 0px;font-size:${config.fontSize}pt;`)
+        infoClass.childNodes[0].setAttribute('style', `height:auto;width:auto;padding:10px 20px 10px 20px;margin:0px 10% 0px 0px;font-size:${config.fontSize}pt;`)
         artInfo.childNodes[3].getElementsByTagName('tr')[1].childNodes[0].style = 'padding:0px;text-align:left;'
         artInfo.childNodes[4].style.paddingLeft = '0px'
         document.getElementById('favoritelink').style.whiteSpace = 'nowrap'
@@ -940,18 +971,20 @@ class WebStructure {
             }
         }
     }
+
     resetReader() {
         localStorage.removeItem('ReaderConfig')
         document.location.href = document.location.href
     }
-     initConfigStucture(configProxy){
+
+    initConfigStucture(configProxy) {
         this.configProxy = configProxy
         const configContainer = document.createElement('div')
-        configContainer.setAttribute('class','reader-menu-config bottom-hidden')
-         // configContainer.setAttribute('class','reader-menu-config bottom-hidden')
+        configContainer.setAttribute('class', 'reader-menu-config bottom-hidden')
         this._configContainer = configContainer
         document.body.appendChild(configContainer)
     }
+
     showConfig() {
 
         function _showConfig() {
@@ -996,7 +1029,7 @@ class WebStructure {
             if (this.isShowComments) {
                 this.hideComments()
             }
-            if(this.isShowConfig){
+            if (this.isShowConfig) {
                 this.hideConfig()
             }
         }
@@ -1024,6 +1057,9 @@ class WebStructure {
 
         this._comments = document.getElementById('cdiv')
         this._comments.classList.add('bottom-hidden')
+        this._comments.onscroll = function (e) {
+            print('debug scroll')
+        }
 
         const iconReset = document.createElement('i')
         iconReset.setAttribute('class', 'iconfont icon-refresh')
@@ -1155,12 +1191,12 @@ class WebStructure {
         const biboxStyle = new StyleProxy('label input')
         const lineStyle = new StyleProxy('.reader-img-line')
 
-        configProxy.bindStyleProxy('tagFontSize',tagStyle,'font-size','pt')
-        configProxy.bindStyleProxy('fontSize',fontStyle,'font-size','pt')
-        configProxy.bindStyleProxy('fontSize',newTagStyle,'font-size')
-        configProxy.bindStyleProxy('fontSize',biboxStyle,'width','pt')
-        configProxy.bindStyleProxy('fontSize',biboxStyle,'height','pt')
-        configProxy.bindStyleProxy('lineColor',lineStyle,'background-color')
+        configProxy.bindStyleProxy('tagFontSize', tagStyle, 'font-size', 'pt')
+        configProxy.bindStyleProxy('fontSize', fontStyle, 'font-size', 'pt')
+        configProxy.bindStyleProxy('fontSize', newTagStyle, 'font-size')
+        configProxy.bindStyleProxy('fontSize', biboxStyle, 'width', 'pt')
+        configProxy.bindStyleProxy('fontSize', biboxStyle, 'height', 'pt')
+        configProxy.bindStyleProxy('lineColor', lineStyle, 'background-color')
 
         configProxy.updateStyleProxy()
 
@@ -1176,7 +1212,7 @@ class WebStructure {
 
     isFirstLoadFinished() {
         let isFinished = true
-        for (let i = 0; i < Math.min(this.config.lazyLoadingSize,this.galleryInformation.imageNum); i++) {
+        for (let i = 0; i < Math.min(this.config.lazyLoadingSize, this.galleryInformation.imageNum); i++) {
             if (!this.imageWidgets[i].isLoaded) {
                 isFinished = false
                 break
@@ -1306,10 +1342,12 @@ class ActionListener {
         }
         this.touchTimes = 0
     }
-    cancelTouch(){
+
+    cancelTouch() {
         clearTimeout(this.touchEventId)
         this.touchTimes = 0
     }
+
     listenTouch() {
 
         this.touchTimes = 0
@@ -1358,7 +1396,7 @@ class ActionListener {
             print('infinite Loading:')
             const [index, widget] = this.webStructure.loadQueue.shift()
             widget.show()
-            if(this.webStructure.loadQueue.length < 1){
+            if (this.webStructure.loadQueue.length < 1) {
                 return
             }
         }
@@ -1383,6 +1421,24 @@ class ActionListener {
             }
         }
         return index
+    }
+}
+
+//脚本入口
+print('Run Manakanemu/Exhentai Reader')
+//脚本版本和字典版本，脚本版本可用于更新通知（未实现），字典版本可以用于控制本地字典更新
+var VERSION = 1.3
+var CURRENT_TAG_DICT_VERSION = 1.3
+
+//判断是否使用原汁原味网页，如果isLoadOrigin为true，则后续逻辑不会执行
+var isLoadOrigin = (window.location.href.indexOf('originalReader=') > -1)
+if (isLoadOrigin) {
+    const href = window.location.href.split('&')
+    const orginTimestamp = parseInt(href[0].split('=')[1])
+    if (parseInt(Date.parse(new Date()) / 1000) - orginTimestamp > 2) {
+        isLoadOrigin = false
+    } else {
+        isLoadOrigin = true
     }
 }
 
