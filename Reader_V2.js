@@ -337,7 +337,6 @@ class Config {
     constructor(scriptDOM) {
         print('reading config ...')
         this.loadConfig()
-
         const scriptUrl = scriptDOM.getAttribute('src').match(/(http.*?\/)Reader.*\.js/)[1] || this.getLocalConfig('scriptUrl')
         const isTranslate = this.getLocalConfig('isTranslate') || scriptDOM.getAttribute('translate') || 'true'
         const isOpenBlank = this.getLocalConfig('isOpenBlank') || scriptDOM.getAttribute('openBlank') || 'true'
@@ -357,6 +356,7 @@ class Config {
         this.scriptUrl = scriptUrl
         // this.scriptUrl = !!scriptUrl ? scriptUrl.match(/(http.*?\/)Reader.*\.js/)[1] : 'http://localhost:63342/ExHentaiReader'
         this.isInfiniteLoading = isInfiniteLoading === 'true' || isInfiniteLoading === true ? true : false
+
         this.$registers = {
             // 'fontSize':['文字字号','input_number'],
             'fontSize': ['文字字号', 'select_8_40'],
@@ -390,7 +390,7 @@ class Config {
     toString() {
         const _config = {}
         for (let key in this) {
-            if (key.startsWith('_')) {
+            if (key.startsWith('_') || key.startsWith('$')) {
                 continue
             }
             _config[key] = this[key]
@@ -403,8 +403,8 @@ class Config {
     }
 
     loadConfig() {
-        const _config = JSON.parse(localStorage.getItem('ReaderConfig')) || {}
-        this._config = _config
+        const config = !!localStorage.getItem('ReaderConfig') ? JSON.parse(localStorage.getItem('ReaderConfig')) : {}
+        this._config = config
     }
 }
 
