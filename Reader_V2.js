@@ -11,6 +11,12 @@ function getOffsetTopByBody(el) {
     return offsetTop
 }
 
+function scrollBack(ele, backPix) {
+    if (ele.scrollHeight - ele.scrollTop === ele.clientHeight) {
+        ele.scrollTop -= backPix
+    }
+}
+
 function GET(url, fn, type, async = true) {
     // Ajax GET 请求封装，回调函数fn使用GET上下文，如果需要指定回调函数上下文，请指定GET上下文：GET.call(this,params...)
     print('GET: ' + url)
@@ -49,29 +55,37 @@ function GET(url, fn, type, async = true) {
 }
 
 function lockScroll(ele) {
-    ele.oonscroll = ele.onscroll
-    ele.oontouchstart = ele.ontouchstart
-    ele.oontouchmove = ele.ontouchmove
-    ele.oontouchend = ele.ontouchend
-    ele.onscroll = function (e) {
-        e.preventDefault()
-    }
-    ele.ontouchstart = function(){}
-    ele.ontouchmove = function(){}
-    ele.ontouchend = function () {}
-    ele.classList.add('fixed')
+    // ele.oonscroll = ele.onscroll
+    // ele.oontouchstart = ele.ontouchstart
+    // ele.oontouchmove = ele.ontouchmove
+    // ele.oontouchend = ele.ontouchend
+    // ele.onscroll = function (e) {
+    //     e.preventDefault()
+    // }
+    // ele.ontouchstart = function(){}
+    // ele.ontouchmove = function(){}
+    // ele.ontouchend = function () {}
+    // // ele.style.overflowY = 'hidden'
+    document.body.classList.add('fixed')
+    // document.documentElement.classList.add('fixed')
+    // document.documentElement.style.top = `${document.documentElement.scrollTop}px`
+
 }
 
 function unlockScroll(ele) {
-    if(ele.oonscroll){ele.onscroll = ele.oonscroll}
-    if(ele.oontouchstart) {ele.ontouchstart = ele.oontouchstart}
-    if(ele.oontouchmove){ele.ontouchmove = ele.oontouchmove}
-    if(ele.oontouchend){ele.ontouchend = ele.oontouchend}
-    ele.oonscroll = undefined
-    ele.oontouchstart = undefined
-    ele.oontouchmove = undefined
-    ele.oontouchend = undefined
-    ele.classList.remove('fixed')
+    // if(ele.oonscroll){ele.onscroll = ele.oonscroll}
+    // if(ele.oontouchstart) {ele.ontouchstart = ele.oontouchstart}
+    // if(ele.oontouchmove){ele.ontouchmove = ele.oontouchmove}
+    // if(ele.oontouchend){ele.ontouchend = ele.oontouchend}
+    // ele.oonscroll = undefined
+    // ele.oontouchstart = undefined
+    // ele.oontouchmove = undefined
+    // ele.oontouchend = undefined
+    document.body.classList.remove('fixed')
+    // document.documentElement.classList.remove('fixed')
+    // ele.classList.remove('fixed')
+    // document.documentElement.style.top = '0px'
+    // ele.style.overflowY = 'scroll'
 
 }
 
@@ -520,7 +534,6 @@ class ImageWidget {
         if (this.button || this.state == -1) {
             return
         }
-        print(`debug add button ${this.index} ${this.state}`)
         const button = document.createElement('div')
         this.button = button
         const buttonIcon = document.createElement('i')
@@ -529,7 +542,6 @@ class ImageWidget {
         button.appendChild(buttonIcon)
         this.imageContainer.appendChild(button)
         button.onclick = (e) => {
-            print(`debug add button clicked ${this.index}`)
             this.webStructure.actionListener.cancelTouch()
             this.reloadImage()
             this.removeLoadButton()
@@ -786,6 +798,7 @@ class ConfigProxy {
             lineDOM.appendChild(editDOM)
             configBox.appendChild(lineDOM)
         }
+
         return configBox
     }
 
@@ -836,6 +849,7 @@ class WebStructure {
 
     rebuildMobileStructure(config, galleryInformation) {
         print('rebuilding mobile structure ...')
+        const zoomMeta = document.createElement('meta')
         const titleBox = document.getElementsByClassName('gm')[0]
         const titleBackgroud = document.createElement('div')
         const titleInfoCover = document.createElement('div')
@@ -846,6 +860,7 @@ class WebStructure {
         const coverratio = 1 / 3
         const coverImage = document.createElement('img')
         const coverCanvas = document.createElement('canvas')
+
         const title = document.getElementById('gn')
         const subTitle = document.getElementById('gj')
         const artInfo = document.getElementById('gd3')
@@ -853,6 +868,10 @@ class WebStructure {
         const horizontalLine = document.createElement('div')
         const tagAction = document.getElementById('tagmenu_act')
         const tagNew = document.getElementById('tagmenu_new')
+
+        // zoomMeta.setAttribute('name','videoport')
+        // zoomMeta.setAttribute('content','width=device-width, initial-scale=1, maximum-scale=1')
+        // document.head.appendChild(zoomMeta)
 
         titleInfoDetail.appendChild(title)
         titleInfoDetail.appendChild(subTitle)
@@ -981,6 +1000,12 @@ class WebStructure {
         this.configProxy = configProxy
         const configContainer = document.createElement('div')
         configContainer.setAttribute('class', 'reader-menu-config bottom-hidden')
+        configContainer.onselectstart = function (e) {
+            return false
+        }
+        configContainer.onscroll = function () {
+            scrollBack(configContainer, 20)
+        }
         this._configContainer = configContainer
         document.body.appendChild(configContainer)
     }
@@ -992,7 +1017,9 @@ class WebStructure {
             this._configContainer.appendChild(configProxy.getConfigDOM())
             this._configContainer.classList.remove('bottom-hidden')
             this.isShowConfig = true
-
+            if (this._configContainer.clientHeight >= this._configContainer.children[0].clientHeight) {
+                this._configContainer.children[0].style.height = `${this._configContainer.clientHeight + 20}px`
+            }
         }
 
         this._configContainer.classList.add('transform-anime')
@@ -1057,9 +1084,17 @@ class WebStructure {
 
         this._comments = document.getElementById('cdiv')
         this._comments.classList.add('bottom-hidden')
-        this._comments.onscroll = function (e) {
-            print('debug scroll')
+        this._comments.onscroll = (e) => {
+            scrollBack(this._comments, 20)
         }
+        const commentsBox = document.createElement('div')
+        commentsBox.innerHTML = this._comments.innerHTML
+        commentsBox.style = 'width:100%;margin-bottom:20px;'
+        this._comments.innerHTML = ''
+        this._comments.appendChild(commentsBox)
+        window.scrollTo = function (){}
+
+
 
         const iconReset = document.createElement('i')
         iconReset.setAttribute('class', 'iconfont icon-refresh')
@@ -1099,6 +1134,10 @@ class WebStructure {
 
         this._comments.classList.add('transform-anime')
         _showComments.call(this)
+        const commentsBox = this._comments.children[0]
+        if (commentsBox.scrollHeight < this._comments.clientHeight) {
+            commentsBox.style.minHeight = `${this._comments.clientHeight}px`
+        }
         this.showComments = _showComments
     }
 

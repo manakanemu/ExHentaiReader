@@ -3,9 +3,13 @@ html, body {
     margin: 0px;
     padding: 0px;
     height: 100%;
+    top: 0px;
     position: relative;
 }
-
+.fixed{
+    position: fixed;
+    overflow-y: hidden;
+}
 body .gm {
     max-width: 100%;
     width: 100%;
@@ -228,6 +232,8 @@ td > .tag {
     overflow-scrolling: touch;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: none;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .reader-menu-config-box{
@@ -245,13 +251,16 @@ td > .tag {
     width: 50%;
     max-width: 50%;
     padding: 40px;
-
+    user-select: none;
+    -webkit-user-select: none;
 }
 .reader-menu-config-edit input{
     padding: 15px;
 }
 .reader-menu-config-edit label{
     margin: 15px;
+    user-select: none;
+    -webkit-user-select: none;
 }
 .reader-menu-config-edit label input{
     margin: 15px;
@@ -264,7 +273,7 @@ body #cdiv {
     max-height: 50%;
     bottom: 0px;
     margin: 0px;
-    overflow-y: scroll;0=
+    overflow-y: scroll;
     z-index: 100;
 }
 
