@@ -93,6 +93,9 @@ function unlockScroll(ele) {
 class GalleryInformation {
     // 画廊信息解析类，鉴于ehentai服务器性质，脚本注重减少请求次数，画廊信息尽量从页面解析，而不调用api
     constructor() {
+        if(!this.isGallery){
+            return
+        }
         const title = !!document.getElementById('gn') ? document.getElementById('gn').innerText : ''
         const cover = !!document.getElementById('gd1') ? document.getElementById('gd1').innerHTML.match(/url\((.*)\)/i)[1] : ''
         const infoDOMS = !!document.getElementById('gdd') ? document.getElementById('gdd').getElementsByTagName('tr') : []
@@ -121,6 +124,9 @@ class GalleryInformation {
         this.imgPerPage = imgPerPage
         this.imageNum = Number(metaInfo['length'].match(/\d*/)[0])
         print('GalleryInformation:', this)
+    }
+    get isGallery() {
+        return /\/e(x|-)hentai\.org\/g\//.test(window.location.href)
     }
 }
 
@@ -869,9 +875,9 @@ class WebStructure {
         const tagAction = document.getElementById('tagmenu_act')
         const tagNew = document.getElementById('tagmenu_new')
 
-        // zoomMeta.setAttribute('name','videoport')
-        // zoomMeta.setAttribute('content','width=device-width, initial-scale=1, maximum-scale=1')
-        // document.head.appendChild(zoomMeta)
+        zoomMeta.setAttribute('name','videoport')
+        zoomMeta.setAttribute('content','width=device-width, initial-scale=1, maximum-scale=1')
+        document.head.appendChild(zoomMeta)
 
         titleInfoDetail.appendChild(title)
         titleInfoDetail.appendChild(subTitle)
@@ -978,6 +984,7 @@ class WebStructure {
             }
         }
     }
+
 
     scollToTop() {
         document.body.scrollTop = document.documentElement.scrollTop = 0
