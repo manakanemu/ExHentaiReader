@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>代码生成</title>
+    <style>
+        td {
+            display: table-cell;
+        }
+    </style>
+    <script>
+        const keys = ['igneous', 'ipb_member_id', 'ipb_pass_hash', 'star']
+
+        window.onload = function () {
+            const container = document.getElementsByTagName('tbody')[0]
+            for (let key of keys) {
+                const line = document.createElement('tr')
+                const title = document.createElement('td')
+                title.innerText = key
+                const sign = document.createElement('td')
+                sign.innerText = ':'
+                const editCol = document.createElement('td')
+                const edit = document.createElement('input')
+                edit.setAttribute('id', key)
+                editCol.appendChild(edit)
+                line.appendChild(title)
+                line.appendChild(sign)
+                line.appendChild(editCol)
+                container.appendChild(line)
+            }
+            document.getElementById('gen-code').onclick = function () {
+                const cookieInfo = {}
+                const src = `//${document.location.host}/ExHentaiReader/expanda/panda.js`
+                let code = `javascript:(function(){const s=document.createElement("script");s.setAttribute("src","${src}");`
+                for (let key of keys) {
+                    const edit = document.getElementById(key)
+                    const value = edit.value
+                    cookieInfo[key] = value
+                    const tcode = `s.setAttribute("${key}","${value}");`
+                    code += tcode
+                }
+                code += 'document.body.appendChild(s);})();'
+                document.getElementById('code').value = code
+            }
+            document.getElementById('code').onclick = function () {
+                this.select()
+
+            }
+        }
+    </script>
+
+</head>
+<body>
+<table id="infoTable">
+    <tbody>
+
+    </tbody>
+</table>
+<button id="gen-code">生成代码</button>
+<textarea name="code" id="code" cols="30" rows="10"></textarea>
+</body>
+</html>
