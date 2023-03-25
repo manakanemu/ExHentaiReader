@@ -769,6 +769,7 @@ class WebStructure {
         print("rebuilding mobile structure ...");
         const zoomMeta = document.createElement("meta");
         const titleBox = document.getElementsByClassName("gm")[0];
+        const body = document.body
         const titleBackgroud = document.createElement("div");
         const titleInfoCover = document.createElement("div");
         const titleInfoDetail = document.createElement("div");
@@ -786,6 +787,8 @@ class WebStructure {
         const tagNew = document.getElementById("tagmenu_new");
         zoomMeta.setAttribute("name", "videoport");
         zoomMeta.setAttribute("content", "width=device-width, initial-scale=1, maximum-scale=1");
+        body.style.overscrollBehaviorX = 'none';
+        body.style.overflowX = 'hidden';
         document.head.appendChild(zoomMeta);
         titleInfoDetail.appendChild(title);
         titleInfoDetail.appendChild(subTitle);
