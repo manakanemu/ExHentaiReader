@@ -11,13 +11,37 @@ function getOffsetTopByBody(el) {
     return offsetTop
 }
 
+// Keyboard and browser toolbars shrink the visible area but not the layout viewport,
+// so bottom:0 panels end up hidden behind them. Track the gap in --vv-bottom.
+function trackVisualViewport() {
+    const vv = window.visualViewport;
+    if (!vv) {
+        return
+    }
+    const update = () => {
+        const layout = document.documentElement;
+        // Pinch zoom also shrinks the visible area; only react when the full width is visible
+        const isZoomed = vv.width < layout.clientWidth * 0.95;
+        const gap = isZoomed ? 0 : Math.max(0, layout.clientHeight - vv.height - vv.offsetTop);
+        document.documentElement.style.setProperty("--vv-bottom", `${gap}px`)
+    };
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    update()
+}
+
+function isTyping() {
+    const el = document.activeElement;
+    return !!el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)
+}
+
 function scrollBack(ele, backPix) {
     if (ele.scrollHeight - ele.scrollTop === ele.clientHeight) {
         ele.scrollTop -= backPix
     }
 }
 
-function GET(url, fn, type, async = true) {
+function GET(url, fn, type, async = true, onFail = null, tries = 3) {
     print("GET: " + url);
     if (type == "jsonp") {
         var script = document.createElement("script");
@@ -31,6 +55,20 @@ function GET(url, fn, type, async = true) {
     } else {
         var xhr = new XMLHttpRequest;
         xhr.open("GET", url, async);
+        // Retry errors and unparseable pages (e.g. rate limiting), then let the caller recover
+        const fail = reason => {
+            print(`GET failed (${reason}): ${url}`);
+            if (tries > 1) {
+                setTimeout(() => GET.call(this, url, fn, type, async, onFail, tries - 1), 2e3)
+            } else if (onFail) {
+                onFail.call(this)
+            }
+        };
+        xhr.onerror = () => fail("network");
+        xhr.ontimeout = () => fail("timeout");
+        if (async) {
+            xhr.timeout = 15e3
+        }
         xhr.onload = () => {
             if (xhr.status === 200) {
                 let responseText = xhr.responseText;
@@ -46,7 +84,13 @@ function GET(url, fn, type, async = true) {
                 if (type == "text") {
                     parm = responseText
                 }
-                fn.call(this, parm)
+                try {
+                    fn.call(this, parm)
+                } catch (e) {
+                    fail(e.message)
+                }
+            } else {
+                fail(xhr.status)
             }
         };
         xhr.send()
@@ -69,7 +113,12 @@ class GalleryInformation {
         const title = !!document.getElementById("gn") ? document.getElementById("gn").innerText : "";
         const cover = !!document.getElementById("gd1") ? document.getElementById("gd1").innerHTML.match(/url\((.*)\)/i)[1] : "";
         const infoDOMS = !!document.getElementById("gdd") ? document.getElementById("gdd").getElementsByTagName("tr") : [];
-        const imgPerPage = document.getElementsByClassName("gpc")[0] && document.getElementsByClassName("gpc")[0].innerText.match(/(\d*?) - (\d*?) of/) ? Number(document.getElementsByClassName("gpc")[0].innerText.match(/(\d*?) - (\d*?) of/)[2]) : document.getElementsByClassName("gdtm").length || document.getElementsByClassName("reader-img").length;
+        // The reader may be started from any thumbnail page, e.g. ?p=6
+        const currentPage = Number(new URLSearchParams(window.location.search).get("p")) || 0;
+        const gpc = document.getElementsByClassName("gpc")[0];
+        const range = gpc && gpc.innerText.replace(/,/g, "").match(/(\d+) - (\d+) of/);
+        // "Showing 121 - 140 of 218" on page p: the first number is p * perPage + 1
+        const imgPerPage = range ? (currentPage > 0 ? (Number(range[1]) - 1) / currentPage : Number(range[2])) : document.querySelectorAll("#gdt > a").length || document.getElementsByClassName("reader-img").length;
         const galleryUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         const metaInfo = {};
         for (let meta of infoDOMS) {
@@ -89,7 +138,8 @@ class GalleryInformation {
         this.pageNum = pages;
         this.url = galleryUrl;
         this.imgPerPage = imgPerPage;
-        this.imageNum = Number(metaInfo["length"].match(/\d*/)[0]);
+        this.currentPage = currentPage;
+        this.imageNum = Number(metaInfo["length"].replace(/,/g, "").match(/\d*/)[0]);
         print("GalleryInformation:", this)
     }
 
@@ -180,7 +230,11 @@ class ImageMeta {
             this.url = imgUrl;
             this.nl = nl;
             this.imageWidget.updateImageDOM()
-        }, "text")
+        }, "text", true, function () {
+            this.state = 2;
+            this.imageWidget.loadingBoxHiden();
+            this.imageWidget.addReloadButton()
+        })
     }
 
     get isLoaded() {
@@ -208,11 +262,11 @@ class GalleryPage {
     }
 
     getImagePageFromDOM(dom) {
-        const imageWidgets = dom.getElementsByClassName("gdtm");
+        const imageWidgets = dom.querySelectorAll("#gdt > a");
         for (let i = 0; i < imageWidgets.length; i++) {
             const imageWidget = imageWidgets[i];
-            const pageUrl = imageWidget.getElementsByTagName("a")[0].href;
-            const img = imageWidget.getElementsByTagName("img")[0];
+            const pageUrl = imageWidget.href;
+            const img = imageWidget.firstElementChild;
             const height = Number(img.style.height.match(/\d*/)) || 139;
             const width = Number(img.style.width.match(/\d*/)) || 100;
             this.images[i].imagePageUrl = pageUrl;
@@ -245,11 +299,14 @@ class GalleryPage {
         this.callStack.push(imageWidget);
         const url = this.url;
         GET.call(this, url, function (d) {
-            const imageWidgets = d.getElementsByClassName("gdtm");
+            const imageWidgets = d.querySelectorAll("#gdt > a");
+            if (imageWidgets.length === 0) {
+                throw new Error("no thumbnails on gallery page")
+            }
             for (let i = 0; i < imageWidgets.length; i++) {
                 const imageWidget = imageWidgets[i];
-                const pageUrl = imageWidget.getElementsByTagName("a")[0].href;
-                const img = imageWidget.getElementsByTagName("img")[0];
+                const pageUrl = imageWidget.href;
+                const img = imageWidget.firstElementChild;
                 const height = Number(img.style.height.match(/\d*/)) || 139;
                 const width = Number(img.style.width.match(/\d*/)) || 100;
                 this.images[i].imagePageUrl = pageUrl;
@@ -257,8 +314,22 @@ class GalleryPage {
                 this.images[i].width = width
             }
             this.isLoaded = true;
-            this.clearCallStack()
-        }, "html")
+            this.callState = 2;
+            this.clearCallStack();
+            // After an earlier failure, one successful reload brings back the whole page
+            for (const image of this.images) {
+                image.imageWidget && image.imageWidget.button && image.imageWidget.button.click()
+            }
+        }, "html", true, function () {
+            // Let the waiting images offer a reload, which fetches this gallery page again
+            this.callState = 0;
+            while (this.callStack.length > 0) {
+                const imageWidget = this.callStack.shift();
+                imageWidget.state = 0;
+                imageWidget.loadingBoxHiden();
+                imageWidget.addReloadButton()
+            }
+        })
     }
 }
 
@@ -274,7 +345,8 @@ class ImageParser {
         this.imageNum = imageNum;
         this.imgPerPage = information.imgPerPage;
         this.galleryPages = galleryPages;
-        this.galleryPages[0].getImagePageFromDOM(document.body)
+        // The thumbnails already on screen belong to the page the reader was started from
+        this.galleryPages[information.currentPage].getImagePageFromDOM(document.body)
     }
 }
 
@@ -372,7 +444,11 @@ class ImageWidget {
             }
             print(`Image load fail ${this.index}`);
             const button = this.addReloadButton();
-            button.click();
+            // Try a few other servers automatically, then leave it to the reload button
+            this.autoReloads = (this.autoReloads || 0) + 1;
+            if (button && this.autoReloads <= 3) {
+                button.click()
+            }
         };
         img.onload = () => {
             if (this.img.src.indexOf(this.blankImageUrl) < 0) {
@@ -459,11 +535,14 @@ class ImageWidget {
 
     reloadImage() {
         if (this.state >= 5) {
-            this.imgInfo.imagePageUrl += "?nl=" + this.imgInfo.nl;
+            // Same as the site's nl(): chain keys so every failed server is skipped
+            const separator = this.imgInfo.imagePageUrl.indexOf("?") > -1 ? "&" : "?";
+            this.imgInfo.imagePageUrl += separator + "nl=" + this.imgInfo.nl;
             this.imgInfo.url = "";
             this.imgInfo.nl = ""
         }
         print(`Reloading Image: ${this.index} state: ${this.state}`);
+        this.webStructure.addLoading(this.index);
         this.imgInfo.loadIntoWidget()
     }
 
@@ -471,6 +550,8 @@ class ImageWidget {
         if (this.button || this.state == -1) {
             return this.button
         }
+        // A stalled image must not hold a loading slot, or loading stops behind it
+        this.webStructure.removeLoading(this.index);
         const button = document.createElement("div");
         this.button = button;
         const buttonIcon = document.createElement("i");
@@ -940,6 +1021,10 @@ class WebStructure {
         this._bottomMenu = bottomMenu;
         document.body.appendChild(bottomMenu);
         document.body.onscroll = e => {
+            // iOS scrolls the page to reveal a focused field; don't close the panel holding it
+            if (isTyping()) {
+                return
+            }
             if (this.isShowMenu) {
                 this.hideMenu()
             }
@@ -1314,7 +1399,7 @@ class ActionListener {
         const currentBottom = currentTop + document.documentElement.clientHeight;
         let index = -1;
         for (let imageWidget of this.webStructure.imageWidgets) {
-            if (imageWidget.pos < currentBottom && imageWidget.isLoadStart) {
+            if (imageWidget.pos < currentBottom && (imageWidget.isLoadStart || imageWidget.button)) {
                 index += 1
             } else {
                 break
@@ -1353,6 +1438,7 @@ if (!isLoadOrigin) {
         webStructure.loadStyleFile();
         webStructure.rebuildMobileStructure(config, galleryInformation);
         webStructure.initMenuStructure(configProxy);
+        trackVisualViewport();
         var imageParser = new ImageParser(galleryInformation);
         webStructure.initImageStructure(imageParser);
         var actionListener = new ActionListener(config, webStructure);
